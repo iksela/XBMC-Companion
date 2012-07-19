@@ -30,12 +30,12 @@ public class SettingsProvider {
 		this.getEditor().putString(getPref(R.string.settings_ip), value).commit();
 	}
 	
-	public int getPort() {
-		return this._prefs.getInt(getPref(R.string.settings_port), 80);
+	public String getPort() {
+		return this._prefs.getString(getPref(R.string.settings_port), "80");
 	}
 	
-	public void setPort(int value) {
-		this.getEditor().putInt(getPref(R.string.settings_port), value).commit();
+	public void setPort(String value) {
+		this.getEditor().putString(getPref(R.string.settings_port), value).commit();
 	}
 	
 	public String getUserName() {

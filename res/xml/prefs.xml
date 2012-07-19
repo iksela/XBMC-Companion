@@ -2,12 +2,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/settings_label_connectivity" >
-        <EditTextPreference android:title="@string/settings_label_ip" android:key="@string/settings_ip"/>
+        <EditTextPreference
+            android:key="@string/settings_ip"
+            android:title="@string/settings_label_ip" />
         <EditTextPreference
             android:defaultValue="80"
-            android:title="@string/settings_label_port" android:key="@string/settings_port"/>
-        <EditTextPreference android:title="@string/settings_label_username" android:key="@string/settings_username"/>
-        <EditTextPreference android:title="@string/settings_label_password" android:key="@string/settings_password"/>
+            android:key="@string/settings_port"
+            android:title="@string/settings_label_port" />
+        <EditTextPreference
+            android:key="@string/settings_username"
+            android:title="@string/settings_label_username" />
+        <EditTextPreference
+            android:key="@string/settings_password"
+            android:title="@string/settings_label_password" />
     </PreferenceCategory>
 
 </PreferenceScreen>
