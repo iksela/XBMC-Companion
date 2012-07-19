@@ -1,0 +1,26 @@
+<resources>
+
+    <string name="app_name">XBMC Companion</string>
+    <string name="title_section3">Section 3</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section1">Section 1</string>
+    <string name="settings_infos">First, please ensure you have enabled HTTP in XBMC, then blabla, then blablabla…</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">XBMC Companion</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="settings_label_ip">IP address</string>
+    <string name="settings_label_port">Port number</string>
+    <string name="settings_label_username">Username</string>
+    <string name="settings_label_password">Password</string>
+    
+    <string name="settings_label_connectivity">Connectivity</string>
+    
+    <string name="settings_ip">ip</string>
+    
+    <string name="settings_port">port</string>
+    
+    <string name="settings_username">username</string>
+    
+    <string name="settings_password">password</string>
+
+</resources>
