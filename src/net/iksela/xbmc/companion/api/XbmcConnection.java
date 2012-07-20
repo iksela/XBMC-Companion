@@ -1,6 +1,6 @@
-package net.iksela.xbmc.companion;
+package net.iksela.xbmc.companion.api;
 
-import net.iksela.xbmc.companion.api.XbmcApi;
+import net.iksela.xbmc.companion.SettingsProvider;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -15,6 +15,8 @@ import android.content.Context;
 import android.util.Log;
 
 public class XbmcConnection {
+	
+	private final static String TAG = "NET";
 
 	private Context _context;
 
@@ -47,22 +49,25 @@ public class XbmcConnection {
 		
 		try {
 			String responseBody = client.execute(post, responseHandler);
-			Log.i("NET", responseBody);
+			Log.v(TAG, responseBody);
 			return new XbmcApi.JsonRpcResponse(responseBody);
 		} catch (Exception e) {
-			Log.e("pwet", e.getMessage());
+			Log.e(TAG, e.getMessage());
 		}
 		return null;
 	}
 
 	public boolean isReachable() {
-		Log.i("pwet", "isReachable?");
 		XbmcApi.Ping ping = new XbmcApi.Ping();
+		ping.setResponse(this.send(ping));
+		return ping.hasPong();
+		/*
 		XbmcApi.JsonRpcResponse response = this.send(ping);
 		if (response != null) {
 			return response.getStringResult().equals("pong");
 		}
 		return false;
+		*/
 		
 		/*
 		JSONObject json = new JSONObject();
@@ -88,5 +93,11 @@ public class XbmcConnection {
 			Log.e("pwet", e.getMessage());
 		}
 		*/
+	}
+	
+	public boolean hasVideoPlayer() {
+		XbmcApi.GetActivePlayers gap = new XbmcApi.GetActivePlayers();
+		gap.setResponse(this.send(gap));
+		return gap.hasVideoPlayer();
 	}
 }

@@ -22,5 +22,6 @@
     <string name="settings_username">username</string>
     
     <string name="settings_password">password</string>
+    <string name="menu_refresh">Refresh</string>
 
 </resources>

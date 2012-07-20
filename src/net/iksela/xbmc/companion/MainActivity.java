@@ -1,5 +1,6 @@
 package net.iksela.xbmc.companion;
 
+import net.iksela.xbmc.companion.api.XbmcConnection;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity {
 
@@ -43,79 +45,82 @@ public class MainActivity extends FragmentActivity {
 		// of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-		new MyTask().execute("pwet");
-
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 
 	}
 
-	private class MyTask extends AsyncTask<String, Void, Boolean> {
+	@Override
+	protected void onResume() {
+		super.onResume();
+		new StartConnectionTask().execute();
+	}
+
+	private class StartConnectionTask extends AsyncTask<String, Void, Integer> {
+
+		private static final int OK				= 0;
+		private static final int UNREACHABLE	= 1;
+		private static final int NO_VIDEOPLAYER	= 2;
 
 		@Override
-		protected Boolean doInBackground(String... params) {
-			Log.i("pwet", "doInBackground...");
-			/*
-			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost/").openConnection();
-				connection.setRequestMethod("GET");
-				connection.setDoOutput(true);
-				connection.setConnectTimeout(1000);
-				connection.connect();
-				
-				BufferedReader bufReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-				
-				String result = null;
-				while(bufReader.ready()) {
-					result += bufReader.readLine();
-				}
-				
-				bufReader.close();
-				
-				Log.e("pwet", result);
-				
-				return "yesWeCan!";
-			} catch (Exception e) {
-				Log.e("pwet", e.getMessage());
-			}
-			*/
+		protected Integer doInBackground(String... params) {
 			XbmcConnection xbmc = new XbmcConnection(getApplicationContext());
-			return xbmc.isReachable();
+			if (xbmc.isReachable()) {
+				if (xbmc.hasVideoPlayer()) {
+					return OK;
+				}
+				else {
+					return NO_VIDEOPLAYER;
+				}
+			}
+			else {
+				return UNREACHABLE;
+			}
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(Integer result) {
 			super.onPostExecute(result);
-			Log.i("task", "onPostExecute: "+result);
-			if (!result) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-				builder.setMessage("Couldn't connect to XBMC.")
-					.setCancelable(false)
-					.setPositiveButton("Show settings", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							launchSettingsActivity();
-							dialog.dismiss();
-						}
-					})
-					.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							MainActivity.this.finish();
-						}
-					});
-				builder.create().show();
+			Log.i("task", "onPostExecute: " + result);
+			switch (result) {
+				case 1:
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setMessage("Couldn't connect to XBMC.")
+						.setCancelable(false)
+						.setPositiveButton("Show settings", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								launchSettingsActivity();
+								dialog.dismiss();
+							}
+						})
+						.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								MainActivity.this.finish();
+							}
+						});
+					builder.create().show();
+					break;
+				case 2:
+					Toast.makeText(MainActivity.this, "No videoplayer is currently on.", Toast.LENGTH_LONG).show();
+					break;
 			}
 		}
 
 	}
-	
+
 	/**
 	 * Launchs SettingsActivity.
 	 */
 	public void launchSettingsActivity() {
 		startActivity(new Intent(this, SettingsActivity.class));
+	}
+	
+	public void refreshActivity() {
+		finish();
+		startActivity(getIntent());
 	}
 
 	@Override
@@ -127,11 +132,14 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_settings:
-			launchSettingsActivity();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
+			case R.id.menu_refresh:
+				refreshActivity();
+				return true;
+			case R.id.menu_settings:
+				launchSettingsActivity();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
