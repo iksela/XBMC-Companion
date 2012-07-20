@@ -80,7 +80,7 @@ public class MainActivity extends FragmentActivity {
 				Log.e("pwet", e.getMessage());
 			}
 			*/
-			XBMCConnection xbmc = new XBMCConnection(getApplicationContext());
+			XbmcConnection xbmc = new XbmcConnection(getApplicationContext());
 			return xbmc.isReachable();
 		}
 
