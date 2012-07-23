@@ -1,8 +1,5 @@
 package net.iksela.xbmc.companion.api;
 
-import java.io.UnsupportedEncodingException;
-
-import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,121 +9,68 @@ import android.util.Log;
 public class XbmcApi {
 	
 	private final static String TAG = "API";
-
-	private final static String JSONRPC_ID = "42";
-	private final static String JSONRPC_VERSION = "2.0";
+	
+	public final static String VIDEO_TYPE_EPISODE = "episode";
+	//public final static String VIDEO_TYPE_MOVIE = "movie";
 
 	protected enum JSONRPC {
 		Ping
 	}
 
 	protected enum Player {
-		GetActivePlayers
+		GetActivePlayers,
+		GetItem
 	}
-
-	protected static class JsonRpcRequest {
-		protected JSONObject _json;
-		protected JsonRpcResponse _response = null;
-
-		private void basicConstructor() throws JSONException {
-			_json = new JSONObject();
-			_json.put("id", XbmcApi.JSONRPC_ID);
-			_json.put("jsonrpc", XbmcApi.JSONRPC_VERSION);
-		}
-
-		public JsonRpcRequest() {
-			try {
-				basicConstructor();
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-
-		public JsonRpcRequest(String method) {
-			try {
-				basicConstructor();
-				setMethod(method);
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-
-		public JsonRpcRequest(@SuppressWarnings("rawtypes") Enum method) {
-			try {
-				basicConstructor();
-				setMethod(method.getDeclaringClass().getSimpleName() + "." + method.name());
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-
-		private void setMethod(String method) {
-			try {
-				_json.put("method", method);
-				Log.v(TAG, "Prepared API method: " + method);
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-
-		public StringEntity getStringEntity() {
-			try {
-				return new StringEntity(_json.toString());
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, e.getMessage());
-			}
-			return null;
-		}
-		
-		public void setResponse(JsonRpcResponse response) {
-			this._response = response;
-		}
+	
+	protected enum VideoLibrary {
+		GetEpisodeDetails,
+		GetTVShowDetails
 	}
+	
+	//private XbmcConnection _connection;
+	
+	//private int _playerID = -1;
+	/*
+	public XbmcApi(XbmcConnection connection) {
+		this._connection = connection;
+	}*/
+	/*
+	public boolean ping() {
+		JsonRpc.Request q = new JsonRpc.Request(JSONRPC.Ping);
+		return q.send(_connection).getStringResult().equals("pong");
+	}
+	
+	public boolean hasVideoPlayer() {
+		JsonRpc.Request q = new JsonRpc.Request(Player.GetActivePlayers);
+		JSONArray result = q.send(_connection).getArrayResult();
+		if (result.length() > 0) {
+			try {
+				JSONObject object = result.getJSONObject(0);
+				this._playerID = object.getInt("playerid");
+				return object.getString("type").equals("video");
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		return false;
+	}
+	*/
 
 	
-	public static class JsonRpcResponse {
-
-		public final static String RESULT = "result";
-		protected JSONObject _json;
-
-		public JsonRpcResponse(String response) {
-			try {
-				_json = new JSONObject(response);
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-
-		public String getStringResult() {
-			try {
-				return _json.getString(RESULT);
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-			return null;
-		}
-		
-		public JSONArray getArrayResult() {
-			try {
-				return _json.getJSONArray(RESULT);
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-			return null;
-		}
-	}
-
-	public static class Ping extends JsonRpcRequest {
+	public static class Ping extends JsonRpc.Request {
 		public Ping() {
 			super(XbmcApi.JSONRPC.Ping);
 		}
 		
 		public boolean hasPong() {
-			return this._response.getStringResult().equals("pong");
+			if (this._response != null) {
+				return this._response.getStringResult().equals("pong");
+			}
+			return false;
 		}
 	}
 
-	public static class GetActivePlayers extends JsonRpcRequest {
+	public static class GetActivePlayers extends JsonRpc.Request {
 		public GetActivePlayers() {
 			super(XbmcApi.Player.GetActivePlayers);
 		}
@@ -142,6 +86,109 @@ public class XbmcApi {
 				}
 			}
 			return false;
+		}
+		
+		public int getPlayerID() {
+			JSONArray result = this._response.getArrayResult();
+			if (result.length() > 0) {
+				try {
+					JSONObject object = result.getJSONObject(0);
+					return object.getInt("playerid");
+				} catch (JSONException e) {
+					Log.e(TAG, e.getMessage());
+				}
+			}
+			return -1;
+		}
+	}
+	
+	public static class GetNowPlaying extends JsonRpc.Request {
+		public GetNowPlaying(int playerID) {
+			super(XbmcApi.Player.GetItem);
+			try {
+				JSONObject params = new JSONObject();
+				params.put("playerid", playerID);
+				setParameters(params);
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		
+		public int getItemID() {
+			try {
+				return _response.getObjectResult("item").getInt("id");
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+			return -1;
+		}
+		
+		public String getItemType() {
+			try {
+				return _response.getObjectResult("item").getString("type");
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+			return null;
+		}
+	}
+	
+	public static class GetEpisodeDetails extends JsonRpc.Request {
+		private final static String RESULT = "episodedetails";
+		
+		public GetEpisodeDetails(int episodeID) {
+			super(XbmcApi.VideoLibrary.GetEpisodeDetails);
+			try {
+				JSONArray details = new JSONArray();
+				details.put("season");
+				details.put("episode");
+				details.put("tvshowid");
+				
+				JSONObject params = new JSONObject();
+				params.put("episodeid", episodeID);
+				params.put("properties", details);
+				setParameters(params);
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		
+		public int getTVShowID() {
+			return _response.getIntFromObjectResult(RESULT, "tvshowid");
+			//return getInt("tvshowid");
+		}
+		
+		public int getEpisode() {
+			//return getInt("episode");
+			return _response.getIntFromObjectResult(RESULT, "episode");
+		}
+		
+		public int getSeason() {
+			//return getInt("season");
+			return _response.getIntFromObjectResult(RESULT, "season");
+		}
+		
+		public String getTitle() {
+			return _response.getStringFromObjectResult(RESULT, "label");
+		}
+	}
+	
+	public static class GetTVShowDetails extends JsonRpc.Request {
+		private final static String RESULT = "tvshowdetails";
+		
+		public GetTVShowDetails(int tvshowID) {
+			super(XbmcApi.VideoLibrary.GetTVShowDetails);
+			try {			
+				JSONObject params = new JSONObject();
+				params.put("tvshowid", tvshowID);
+				setParameters(params);
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		
+		public String getTitle() {
+			return _response.getStringFromObjectResult(RESULT, "label");
 		}
 	}
 }

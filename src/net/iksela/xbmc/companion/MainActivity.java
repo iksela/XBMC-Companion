@@ -1,5 +1,6 @@
 package net.iksela.xbmc.companion;
 
+import net.iksela.xbmc.companion.api.XbmcApi;
 import net.iksela.xbmc.companion.api.XbmcConnection;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity {
@@ -65,9 +67,40 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected Integer doInBackground(String... params) {
-			XbmcConnection xbmc = new XbmcConnection(getApplicationContext());
-			if (xbmc.isReachable()) {
-				if (xbmc.hasVideoPlayer()) {
+			XbmcConnection connection = new XbmcConnection(getApplicationContext());
+			
+			XbmcApi.Ping ping = new XbmcApi.Ping();
+			ping.send(connection);
+			if (ping.hasPong()) {
+				XbmcApi.GetActivePlayers gap = new XbmcApi.GetActivePlayers();
+				gap.send(connection);
+				if (gap.hasVideoPlayer()) {
+					int playerID = gap.getPlayerID();
+					XbmcApi.GetNowPlaying gnp = new XbmcApi.GetNowPlaying(playerID);
+					gnp.send(connection);
+					int itemID = gnp.getItemID();
+					if (gnp.getItemType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
+						XbmcApi.GetEpisodeDetails ged = new XbmcApi.GetEpisodeDetails(itemID);
+						ged.send(connection);
+						
+						XbmcApi.GetTVShowDetails gtd = new XbmcApi.GetTVShowDetails(ged.getTVShowID());
+						gtd.send(connection);
+						
+						final String episodeTitle = ged.getTitle();
+						final String episode = UIHelper.formatNumber(UIHelper.FORMAT_EPISODE, ged.getEpisode());
+						final String season = UIHelper.formatNumber(UIHelper.FORMAT_SEASON, ged.getSeason());
+						final String tvshow = gtd.getTitle();
+						
+						MainActivity.this.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								((TextView)findViewById(R.id.textViewEpisodeTitle)).setText(episodeTitle);
+								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode);
+								((TextView)findViewById(R.id.textViewSeasonXX)).setText(season);
+								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(tvshow);
+							}
+						});
+					}
 					return OK;
 				}
 				else {
@@ -77,6 +110,24 @@ public class MainActivity extends FragmentActivity {
 			else {
 				return UNREACHABLE;
 			}
+			
+			/*
+			if (xbmc.isReachable()) {
+				if (xbmc.hasVideoPlayer()) {
+					Log.d("PROGRESS", xbmc.getVideoType());
+					if (xbmc.getVideoType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
+						Log.d("PROGRESS", "So far, so good...");
+					}
+					return OK;
+				}
+				else {
+					return NO_VIDEOPLAYER;
+				}
+			}
+			else {
+				return UNREACHABLE;
+			}
+			*/
 		}
 
 		@Override
@@ -95,10 +146,10 @@ public class MainActivity extends FragmentActivity {
 								dialog.dismiss();
 							}
 						})
-						.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+						.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								MainActivity.this.finish();
+								dialog.dismiss();
 							}
 						});
 					builder.create().show();

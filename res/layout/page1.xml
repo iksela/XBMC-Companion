@@ -4,12 +4,52 @@
     android:layout_height="match_parent" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textViewEpisodeXX"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Exx"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="80dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@+id/textViewSeasonXX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textViewEpisodeXX"
+        android:layout_alignBottom="@+id/textViewEpisodeXX"
+        android:layout_toLeftOf="@+id/textViewEpisodeXX"
+        android:text="Sxx"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="60dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@+id/textViewEpisodeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:gravity="center"
+        android:text="Episode Title"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="30dp"
+        android:typeface="normal" />
+
+    <TextView
+        android:id="@+id/textViewTVShowTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/textViewEpisodeTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:text="TV Show Title"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="20dp"
+        android:typeface="normal" />
 
 </RelativeLayout>
