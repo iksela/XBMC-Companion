@@ -25,15 +25,16 @@ public final class R {
         public static final int editText2=0x7f090004;
         public static final int editText3=0x7f090005;
         public static final int editText4=0x7f090006;
-        public static final int menu_refresh=0x7f09000b;
-        public static final int menu_settings=0x7f09000c;
+        public static final int menu_refresh=0x7f09000c;
+        public static final int menu_settings=0x7f09000d;
+        public static final int page1=0x7f090007;
         public static final int pager=0x7f090000;
         public static final int pager_title_strip=0x7f090001;
         public static final int textView1=0x7f090002;
-        public static final int textViewEpisodeTitle=0x7f090009;
-        public static final int textViewEpisodeXX=0x7f090007;
-        public static final int textViewSeasonXX=0x7f090008;
-        public static final int textViewTVShowTitle=0x7f09000a;
+        public static final int textViewEpisodeTitle=0x7f09000a;
+        public static final int textViewEpisodeXX=0x7f090008;
+        public static final int textViewSeasonXX=0x7f090009;
+        public static final int textViewTVShowTitle=0x7f09000b;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -66,6 +67,7 @@ public final class R {
     }
     public static final class style {
         public static final int AppTheme=0x7f070000;
+        public static final int GlowingText=0x7f070001;
     }
     public static final class xml {
         public static final int prefs=0x7f040000;

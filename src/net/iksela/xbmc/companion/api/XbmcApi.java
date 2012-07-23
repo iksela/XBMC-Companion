@@ -27,36 +27,6 @@ public class XbmcApi {
 		GetTVShowDetails
 	}
 	
-	//private XbmcConnection _connection;
-	
-	//private int _playerID = -1;
-	/*
-	public XbmcApi(XbmcConnection connection) {
-		this._connection = connection;
-	}*/
-	/*
-	public boolean ping() {
-		JsonRpc.Request q = new JsonRpc.Request(JSONRPC.Ping);
-		return q.send(_connection).getStringResult().equals("pong");
-	}
-	
-	public boolean hasVideoPlayer() {
-		JsonRpc.Request q = new JsonRpc.Request(Player.GetActivePlayers);
-		JSONArray result = q.send(_connection).getArrayResult();
-		if (result.length() > 0) {
-			try {
-				JSONObject object = result.getJSONObject(0);
-				this._playerID = object.getInt("playerid");
-				return object.getString("type").equals("video");
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		return false;
-	}
-	*/
-
-	
 	public static class Ping extends JsonRpc.Request {
 		public Ping() {
 			super(XbmcApi.JSONRPC.Ping);
@@ -143,6 +113,7 @@ public class XbmcApi {
 				details.put("season");
 				details.put("episode");
 				details.put("tvshowid");
+				details.put("fanart");
 				
 				JSONObject params = new JSONObject();
 				params.put("episodeid", episodeID);
@@ -155,21 +126,22 @@ public class XbmcApi {
 		
 		public int getTVShowID() {
 			return _response.getIntFromObjectResult(RESULT, "tvshowid");
-			//return getInt("tvshowid");
 		}
 		
 		public int getEpisode() {
-			//return getInt("episode");
 			return _response.getIntFromObjectResult(RESULT, "episode");
 		}
 		
 		public int getSeason() {
-			//return getInt("season");
 			return _response.getIntFromObjectResult(RESULT, "season");
 		}
 		
 		public String getTitle() {
 			return _response.getStringFromObjectResult(RESULT, "label");
+		}
+		
+		public String getImageURL() {
+			return _response.getStringFromObjectResult(RESULT, "fanart");
 		}
 	}
 	

@@ -5,6 +5,8 @@ import net.iksela.xbmc.companion.api.XbmcConnection;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,17 +72,22 @@ public class MainActivity extends FragmentActivity {
 		protected Integer doInBackground(String... params) {
 			XbmcConnection connection = new XbmcConnection(getApplicationContext());
 			
+			// Ping XBMC
 			XbmcApi.Ping ping = new XbmcApi.Ping();
 			ping.send(connection);
+			// Connection OK
 			if (ping.hasPong()) {
 				XbmcApi.GetActivePlayers gap = new XbmcApi.GetActivePlayers();
 				gap.send(connection);
+				// Get VideoPlayer
 				if (gap.hasVideoPlayer()) {
 					int playerID = gap.getPlayerID();
 					XbmcApi.GetNowPlaying gnp = new XbmcApi.GetNowPlaying(playerID);
 					gnp.send(connection);
 					int itemID = gnp.getItemID();
+					// Playing an episode...
 					if (gnp.getItemType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
+						// Get details
 						XbmcApi.GetEpisodeDetails ged = new XbmcApi.GetEpisodeDetails(itemID);
 						ged.send(connection);
 						
@@ -91,6 +99,10 @@ public class MainActivity extends FragmentActivity {
 						final String season = UIHelper.formatNumber(UIHelper.FORMAT_SEASON, ged.getSeason());
 						final String tvshow = gtd.getTitle();
 						
+						Bitmap image = connection.getImage(ged.getImageURL());
+						final BitmapDrawable drawable = UIHelper.getOptimizedDrawable(image, getResources(), (RelativeLayout)findViewById(R.id.page1));
+						
+						// Update UI
 						MainActivity.this.runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -98,6 +110,8 @@ public class MainActivity extends FragmentActivity {
 								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode);
 								((TextView)findViewById(R.id.textViewSeasonXX)).setText(season);
 								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(tvshow);
+								
+								((RelativeLayout)findViewById(R.id.page1)).setBackgroundDrawable(drawable);
 							}
 						});
 					}
@@ -110,24 +124,6 @@ public class MainActivity extends FragmentActivity {
 			else {
 				return UNREACHABLE;
 			}
-			
-			/*
-			if (xbmc.isReachable()) {
-				if (xbmc.hasVideoPlayer()) {
-					Log.d("PROGRESS", xbmc.getVideoType());
-					if (xbmc.getVideoType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
-						Log.d("PROGRESS", "So far, so good...");
-					}
-					return OK;
-				}
-				else {
-					return NO_VIDEOPLAYER;
-				}
-			}
-			else {
-				return UNREACHABLE;
-			}
-			*/
 		}
 
 		@Override

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/page1"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
+
     <TextView
         android:id="@+id/textViewEpisodeXX"
+        style="@style/GlowingText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -21,6 +23,7 @@
         android:layout_alignBaseline="@+id/textViewEpisodeXX"
         android:layout_alignBottom="@+id/textViewEpisodeXX"
         android:layout_toLeftOf="@+id/textViewEpisodeXX"
+        style="@style/GlowingText"
         android:text="Sxx"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="60dp"
@@ -34,6 +37,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:gravity="center"
+        style="@style/GlowingText"
         android:text="Episode Title"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="30dp"
@@ -46,6 +50,7 @@
         android:layout_above="@+id/textViewEpisodeTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
+        style="@style/GlowingText"
         android:gravity="center"
         android:text="TV Show Title"
         android:textAppearance="?android:attr/textAppearanceLarge"
