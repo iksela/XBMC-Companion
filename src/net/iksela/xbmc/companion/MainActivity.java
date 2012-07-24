@@ -40,6 +40,10 @@ public class MainActivity extends FragmentActivity {
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
+	
+	XbmcApi xbmc;
+	
+	Menu menu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,8 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		xbmc = new XbmcApi(new XbmcConnection(getApplicationContext()));
 		new StartConnectionTask().execute();
 	}
 
@@ -70,13 +76,18 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected Integer doInBackground(String... params) {
-			XbmcConnection connection = new XbmcConnection(getApplicationContext());
-			
-			XbmcApi xbmc = new XbmcApi(connection);
 			if (xbmc.isReachable()) {
 				if (xbmc.hasVideoPlayer()) {
+					SettingsProvider settings = new SettingsProvider(getApplicationContext());
+					int status = xbmc.getPlaybackStatus();
+					if (settings.getAutoPause() && status == XbmcApi.PLAYER_PLAYING) {
+						new PlayPauseTask().execute();
+					}
+					else {
+						updatePlayPauseMenu(status);
+					}
 					if (xbmc.getNowPlayingType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
-						final Episode episode = xbmc.getEpisodeDetails();
+						final Episode episode = xbmc.getEpisode();
 						final BitmapDrawable drawable = UIHelper.getOptimizedDrawable(episode.getImage(), getResources(), (RelativeLayout)findViewById(R.id.page1));
 						
 						// Update UI
@@ -150,6 +161,7 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
+		this.menu = menu;
 		return true;
 	}
 
@@ -162,9 +174,57 @@ public class MainActivity extends FragmentActivity {
 			case R.id.menu_settings:
 				launchSettingsActivity();
 				return true;
+			case R.id.menu_playpause:
+				new PlayPauseTask().execute();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private void updatePlayPauseMenu(final int status) {
+		final MenuItem playPause = menu.findItem(R.id.menu_playpause);
+
+		MainActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				switch (status) {
+				case XbmcApi.PLAYER_PLAYING:
+					playPause.setIcon(android.R.drawable.ic_media_pause);
+					break;
+				case XbmcApi.PLAYER_PAUSED:
+					playPause.setIcon(android.R.drawable.ic_media_play);
+					break;
+				}
+			}
+		});
+	}
+	
+	private class PlayPauseTask extends AsyncTask<Void, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Void... params) {
+			return xbmc.playPause();
+		}
+		
+		@Override
+		protected void onPostExecute(Integer result) {
+			super.onPostExecute(result);
+			
+			updatePlayPauseMenu(result);
+			
+			int string = R.string.error;
+			switch (result) {
+				case XbmcApi.PLAYER_PLAYING:
+					string = R.string.status_playing;
+					break;
+				case XbmcApi.PLAYER_PAUSED:
+					string = R.string.status_paused;
+					break;
+			}
+			Toast.makeText(MainActivity.this, string, Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 
 	/**

@@ -1,7 +1,9 @@
 package net.iksela.xbmc.companion.api;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -102,8 +104,10 @@ public class JsonRpc {
 					Response r = new Response(responseBody);
 					this._response = r;
 					return r;
-				} catch (Exception e) {
-					Log.e(TAG, e.getMessage());
+				} catch (ClientProtocolException e) {
+					Log.e(TAG, "ClientProtocolException: "+e.getMessage());
+				} catch (IOException e) {
+					Log.e(TAG, "IOException: "+e.getMessage());
 				}
 			}
 			return null;
@@ -122,6 +126,10 @@ public class JsonRpc {
 			} catch (JSONException e) {
 				Log.e(TAG, e.getMessage());
 			}
+		}
+		
+		private JSONObject getSimpleObjectResult() throws JSONException {
+			return _json.getJSONObject(RESULT);
 		}
 
 		public String getStringResult() {
@@ -144,11 +152,20 @@ public class JsonRpc {
 
 		public JSONObject getObjectResult(String name) {
 			try {
-				return _json.getJSONObject(RESULT).getJSONObject(name);
+				return getSimpleObjectResult().getJSONObject(name);
 			} catch (JSONException e) {
 				Log.e(TAG, e.getMessage());
 			}
 			return null;
+		}
+		
+		public int getIntFromResult(String propertyName) {
+			try {
+				return this.getSimpleObjectResult().getInt(propertyName);
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+			return -1;
 		}
 		
 		public int getIntFromObjectResult(String objectName, String propertyName) {

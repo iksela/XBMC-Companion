@@ -13,10 +13,11 @@ public class SettingsProvider {
 		this._context = context;
 		this._prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
-	
+	/*
 	private SharedPreferences.Editor getEditor() {
 		return this._prefs.edit();
 	}
+	*/
 	
 	private String getPref(int res) {
 		return this._context.getString(res);
@@ -25,32 +26,39 @@ public class SettingsProvider {
 	public String getIP() {
 		return this._prefs.getString(getPref(R.string.settings_ip), null);
 	}
-	
+	/*
 	public void setIP(String value) {
 		this.getEditor().putString(getPref(R.string.settings_ip), value).commit();
 	}
+	*/
 	
 	public String getPort() {
 		return this._prefs.getString(getPref(R.string.settings_port), "80");
 	}
-	
+	/*
 	public void setPort(String value) {
 		this.getEditor().putString(getPref(R.string.settings_port), value).commit();
 	}
+	*/
 	
 	public String getUserName() {
 		return this._prefs.getString(getPref(R.string.settings_username), null);
 	}
-	
+	/*
 	public void setUserName(String value) {
 		this.getEditor().putString(getPref(R.string.settings_username), value).commit();
 	}
+	*/
 	
 	public String getPassword() {
 		return this._prefs.getString(getPref(R.string.settings_password), null);
 	}
-	
+	/*
 	public void setPassword(String value) {
 		this.getEditor().putString(getPref(R.string.settings_password), value).commit();
+	}
+	*/
+	public boolean getAutoPause() {
+		return this._prefs.getBoolean(getPref(R.string.settings_autopause), true);
 	}
 }

@@ -16,6 +16,9 @@ public class XbmcApi {
 	public final static String VIDEO_TYPE_EPISODE = "episode";
 	//public final static String VIDEO_TYPE_MOVIE = "movie";
 	
+	public final static int PLAYER_PLAYING = 1;
+	public final static int PLAYER_PAUSED = 0;
+	
 	private XbmcConnection _connection;
 	
 	private int _playerID = -42;
@@ -28,7 +31,8 @@ public class XbmcApi {
 	protected enum Player {
 		GetActivePlayers,
 		GetItem,
-		GetProperties
+		GetProperties,
+		PlayPause
 	}
 	
 	protected enum VideoLibrary {
@@ -100,7 +104,29 @@ public class XbmcApi {
 	 * Loads episode details.
 	 * @return
 	 */
-	public Episode getEpisodeDetails() {
+	public Episode getEpisode() {
+		Episode episode = loadEpisodeDetails();
+		addTvShowDetails(episode);
+		
+		return episode;
+	}
+
+	private void addTvShowDetails(Episode episode) {
+		JsonRpc.Request q = new JsonRpc.Request(XbmcApi.VideoLibrary.GetTVShowDetails);
+		try {			
+			JSONObject params = new JSONObject();
+			params.put("tvshowid", episode.getTvShowID());
+			q.setParameters(params);
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		
+		JsonRpc.Response r = q.send(_connection);
+		
+		episode.setTvShowTitle(r.getStringFromObjectResult("tvshowdetails", "label"));
+	}
+
+	private Episode loadEpisodeDetails() {
 		JsonRpc.Request q = new JsonRpc.Request(XbmcApi.VideoLibrary.GetEpisodeDetails);
 		try {
 			JSONArray details = new JSONArray();
@@ -126,20 +152,37 @@ public class XbmcApi {
 		episode.setTitle(r.getStringFromObjectResult("episodedetails", "label"));
 		Bitmap image = _connection.getImage(r.getStringFromObjectResult("episodedetails", "fanart"));
 		episode.setImage(image);
-		
-		q = new JsonRpc.Request(XbmcApi.VideoLibrary.GetTVShowDetails);
-		try {			
+		return episode;
+	}
+	
+	public int getPlaybackStatus() {
+		JsonRpc.Request q = new JsonRpc.Request(XbmcApi.Player.GetProperties);
+		try {
+			JSONArray properties = new JSONArray();
+			properties.put("speed");
+			
 			JSONObject params = new JSONObject();
-			params.put("tvshowid", episode.getTvShowID());
+			params.put("playerid", this._playerID);
+			params.put("properties", properties);
 			q.setParameters(params);
 		} catch (JSONException e) {
 			Log.e(TAG, e.getMessage());
 		}
 		
-		r = q.send(_connection);
-		
-		episode.setTvShowTitle(r.getStringFromObjectResult("tvshowdetails", "label"));
-		
-		return episode;
+		JsonRpc.Response r = q.send(_connection);
+		return r.getIntFromResult("speed");
+	}
+	
+	public int playPause() {
+		JsonRpc.Request q = new JsonRpc.Request(XbmcApi.Player.PlayPause);
+		try {
+			JSONObject params = new JSONObject();
+			params.put("playerid", this._playerID);
+			q.setParameters(params);
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		JsonRpc.Response r = q.send(_connection);
+		return r.getIntFromResult("speed");
 	}
 }
