@@ -23,24 +23,38 @@ public class XbmcConnection {
 	
 	private final static String URL_JSON = "jsonrpc";
 	private final static String URL_VFS = "vfs/";
+	
+	private final static int TIMEOUT = 1000;
 
 	private HttpClient _client;
 
 	private SettingsProvider _settings;
 
+	/**
+	 * Creates a connection object.
+	 * @param ctx
+	 */
 	public XbmcConnection(Context ctx) {
 		this._settings = new SettingsProvider(ctx);
 
 		HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(params, 1000);
-		HttpConnectionParams.setSoTimeout(params, 1000);
+		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+		HttpConnectionParams.setSoTimeout(params, TIMEOUT);
 		this._client = new DefaultHttpClient(params);
 	}
 
+	/**
+	 * Gets the shared HTTP Client.
+	 * @return
+	 */
 	public HttpClient getHttpClient() {
 		return _client;
 	}
 
+	/**
+	 * Prepares to POST.
+	 * @return
+	 */
 	public HttpPost getHttpPost() {
 		String ip = _settings.getIP();
 		if (ip != null) {
@@ -53,6 +67,11 @@ public class XbmcConnection {
 		return null;
 	}
 	
+	/**
+	 * Gets an image from a "special" URL.
+	 * @param vfsFile
+	 * @return
+	 */
 	public Bitmap getImage(String vfsFile) {
 		Bitmap img = null;
 		String url = "http://" + _settings.getIP() + ":" + _settings.getPort() + "/" + URL_VFS + vfsFile;
@@ -61,6 +80,7 @@ public class XbmcConnection {
 		try {
 			InputStream is = client.execute(get).getEntity().getContent();
 			img = BitmapFactory.decodeStream(is);
+			Log.v(TAG, "Retrieved image from: "+url);
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
 		}

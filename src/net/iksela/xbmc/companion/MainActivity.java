@@ -2,10 +2,10 @@ package net.iksela.xbmc.companion;
 
 import net.iksela.xbmc.companion.api.XbmcApi;
 import net.iksela.xbmc.companion.api.XbmcConnection;
+import net.iksela.xbmc.companion.data.Episode;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -72,44 +72,21 @@ public class MainActivity extends FragmentActivity {
 		protected Integer doInBackground(String... params) {
 			XbmcConnection connection = new XbmcConnection(getApplicationContext());
 			
-			// Ping XBMC
-			XbmcApi.Ping ping = new XbmcApi.Ping();
-			ping.send(connection);
-			// Connection OK
-			if (ping.hasPong()) {
-				XbmcApi.GetActivePlayers gap = new XbmcApi.GetActivePlayers();
-				gap.send(connection);
-				// Get VideoPlayer
-				if (gap.hasVideoPlayer()) {
-					int playerID = gap.getPlayerID();
-					XbmcApi.GetNowPlaying gnp = new XbmcApi.GetNowPlaying(playerID);
-					gnp.send(connection);
-					int itemID = gnp.getItemID();
-					// Playing an episode...
-					if (gnp.getItemType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
-						// Get details
-						XbmcApi.GetEpisodeDetails ged = new XbmcApi.GetEpisodeDetails(itemID);
-						ged.send(connection);
-						
-						XbmcApi.GetTVShowDetails gtd = new XbmcApi.GetTVShowDetails(ged.getTVShowID());
-						gtd.send(connection);
-						
-						final String episodeTitle = ged.getTitle();
-						final String episode = UIHelper.formatNumber(UIHelper.FORMAT_EPISODE, ged.getEpisode());
-						final String season = UIHelper.formatNumber(UIHelper.FORMAT_SEASON, ged.getSeason());
-						final String tvshow = gtd.getTitle();
-						
-						Bitmap image = connection.getImage(ged.getImageURL());
-						final BitmapDrawable drawable = UIHelper.getOptimizedDrawable(image, getResources(), (RelativeLayout)findViewById(R.id.page1));
+			XbmcApi xbmc = new XbmcApi(connection);
+			if (xbmc.isReachable()) {
+				if (xbmc.hasVideoPlayer()) {
+					if (xbmc.getNowPlayingType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
+						final Episode episode = xbmc.getEpisodeDetails();
+						final BitmapDrawable drawable = UIHelper.getOptimizedDrawable(episode.getImage(), getResources(), (RelativeLayout)findViewById(R.id.page1));
 						
 						// Update UI
 						MainActivity.this.runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								((TextView)findViewById(R.id.textViewEpisodeTitle)).setText(episodeTitle);
-								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode);
-								((TextView)findViewById(R.id.textViewSeasonXX)).setText(season);
-								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(tvshow);
+								((TextView)findViewById(R.id.textViewEpisodeTitle)).setText(episode.getTitle());
+								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode.getEpisodeNumber());
+								((TextView)findViewById(R.id.textViewSeasonXX)).setText(episode.getSeasonNumber());
+								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(episode.getTvShowTitle());
 								
 								((RelativeLayout)findViewById(R.id.page1)).setBackgroundDrawable(drawable);
 							}
