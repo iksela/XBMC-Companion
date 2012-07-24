@@ -23,5 +23,11 @@
     
     <string name="settings_password">password</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="settings_label_options">Options</string>
+    <string name="settings_label_autopause">Auto-pause</string>
+    <string name="settings_label_autopause_long">Automatically pauses video on launch/refresh</string>
+    <string name="settings_label_about">About</string>
+    <string name="settings_label_about_long">Alexandre \&quot;iksela\&quot; Mathieu</string>
+    <string name="settings_label_about_long2">Contact me: iksela@gmail.com</string>
 
 </resources>

@@ -19,7 +19,8 @@ public class XbmcApi {
 
 	protected enum Player {
 		GetActivePlayers,
-		GetItem
+		GetItem,
+		GetProperties
 	}
 	
 	protected enum VideoLibrary {

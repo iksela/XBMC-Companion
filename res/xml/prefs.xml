@@ -16,5 +16,11 @@
             android:key="@string/settings_password"
             android:title="@string/settings_label_password" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_label_options">
+        <SwitchPreference android:title="@string/settings_label_autopause" android:defaultValue="true" android:summary="@string/settings_label_autopause_long"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_label_about">
+        <Preference android:title="@string/settings_label_about_long" android:summary="@string/settings_label_about_long2"/>
+    </PreferenceCategory>
 
 </PreferenceScreen>

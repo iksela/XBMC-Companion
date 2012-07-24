@@ -51,8 +51,14 @@ public final class R {
         public static final int menu_settings=0x7f060005;
         public static final int settings_infos=0x7f060004;
         public static final int settings_ip=0x7f06000d;
+        public static final int settings_label_about=0x7f060015;
+        public static final int settings_label_about_long=0x7f060016;
+        public static final int settings_label_about_long2=0x7f060017;
+        public static final int settings_label_autopause=0x7f060013;
+        public static final int settings_label_autopause_long=0x7f060014;
         public static final int settings_label_connectivity=0x7f06000c;
         public static final int settings_label_ip=0x7f060008;
+        public static final int settings_label_options=0x7f060012;
         public static final int settings_label_password=0x7f06000b;
         public static final int settings_label_port=0x7f060009;
         public static final int settings_label_username=0x7f06000a;

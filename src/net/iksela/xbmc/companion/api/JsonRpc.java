@@ -90,19 +90,21 @@ public class JsonRpc {
 		
 		public Response send(XbmcConnection connection) {
 			HttpPost post = connection.getHttpPost();
-			post.setEntity(this.getStringEntity());
-			
-			HttpClient client = connection.getHttpClient();
-			
-			ResponseHandler<String> responseHandler = new BasicResponseHandler();
-			try {
-				String responseBody = client.execute(post, responseHandler);
-				Log.v(TAG, "Response: "+responseBody);
-				Response r = new Response(responseBody);
-				this._response = r;
-				return r;
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
+			if (post != null) {
+				post.setEntity(this.getStringEntity());
+				
+				HttpClient client = connection.getHttpClient();
+				
+				ResponseHandler<String> responseHandler = new BasicResponseHandler();
+				try {
+					String responseBody = client.execute(post, responseHandler);
+					Log.v(TAG, "Response: "+responseBody);
+					Response r = new Response(responseBody);
+					this._response = r;
+					return r;
+				} catch (Exception e) {
+					Log.e(TAG, e.getMessage());
+				}
 			}
 			return null;
 		}
