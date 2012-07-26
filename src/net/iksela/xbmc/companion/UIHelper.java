@@ -6,22 +6,27 @@ import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.widget.RelativeLayout;
+import android.util.Log;
 
 public class UIHelper {
 
-	private static Bitmap scaleCenterCrop(Bitmap source, int newHeight, int newWidth) {
+	private final static String TAG = "UIHelper";
+
+	private static Bitmap[] getBitmapPieces(int pieces, Bitmap source, int newHeight, int newWidth) {
 		int sourceWidth = source.getWidth();
 		int sourceHeight = source.getHeight();
+
+		int totalWidth = newWidth * pieces;
+
+		Log.v(TAG, "src: " + sourceWidth + "x" + sourceHeight);
+		Log.v(TAG, "pieces: " + totalWidth + "x" + newHeight);
 
 		// Compute the scaling factors to fit the new height and width,
 		// respectively.
 		// To cover the final image, the final scaling will be the bigger
 		// of these two.
-		float xScale = (float) newWidth / sourceWidth;
+		float xScale = (float) totalWidth / sourceWidth;
 		float yScale = (float) newHeight / sourceHeight;
 		float scale = Math.max(xScale, yScale);
 
@@ -29,33 +34,27 @@ public class UIHelper {
 		float scaledWidth = scale * sourceWidth;
 		float scaledHeight = scale * sourceHeight;
 
-		// Let's find out the upper left coordinates if the scaled bitmap
-		// should be centered in the new size give by the parameters
-		float left = (newWidth - scaledWidth) / 2;
-		float top = (newHeight - scaledHeight) / 2;
+		Bitmap scaled = Bitmap.createScaledBitmap(source, (int) scaledWidth, (int) scaledHeight, false);
 
-		// The target rectangle for the new, scaled version of the source bitmap
-		// will now
-		// be
-		RectF targetRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
+		Bitmap[] backgrounds = new Bitmap[pieces];
+		for (int i = 0; i < pieces; i++) {
+			int left = i * newWidth;
+			int top = (int) ((scaledHeight - newHeight) / 2);
+			Bitmap dest = Bitmap.createBitmap(scaled, left, top, newWidth, newHeight);
+			backgrounds[i] = dest;
+			Log.v(TAG, "piece " + i + ": " + dest.getWidth() + "x" + dest.getHeight() + " starting at " + left + "x" + top);
+		}
 
-		// Finally, we create a new bitmap of the specified size and draw our
-		// new,
-		// scaled bitmap onto it.
-		Bitmap dest = Bitmap.createBitmap(newWidth, newHeight, source.getConfig());
-		Canvas canvas = new Canvas(dest);
-		canvas.drawBitmap(source, null, targetRect, null);
-
-		return dest;
+		return backgrounds;
 	}
 
-	public static BitmapDrawable getOptimizedDrawable(Bitmap source, Resources res, RelativeLayout layout) {
-		Rect viewBounds = new Rect();
-		layout.getDrawingRect(viewBounds);
-
-		Bitmap cropped = UIHelper.scaleCenterCrop(source, viewBounds.height(), viewBounds.width());
-		cropped = UIHelper.darken(cropped, -25);
-		return new BitmapDrawable(res, cropped);
+	public static BitmapDrawable[] getPieces(int pieces, Bitmap source, int newHeight, int newWidth, Resources res) {
+		Bitmap[] bitmaps = UIHelper.getBitmapPieces(pieces, source, newHeight, newWidth);
+		BitmapDrawable[] backgrounds = new BitmapDrawable[pieces];
+		for (int i = 0; i < pieces; i++) {
+			backgrounds[i] = new BitmapDrawable(res, UIHelper.darken(bitmaps[i], -25));
+		}
+		return backgrounds;
 	}
 
 	private static Bitmap darken(Bitmap source, int offset) {

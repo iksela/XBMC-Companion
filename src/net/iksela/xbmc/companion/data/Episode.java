@@ -1,18 +1,19 @@
 package net.iksela.xbmc.companion.data;
 
-import android.graphics.Bitmap;
 
-public class Episode {
+public class Episode extends Video {
 	
 	public final static String FORMAT_SEASON = "S";
 	public final static String FORMAT_EPISODE = "E";
 	
 	private String tvShowTitle;
 	private int tvShowID;
-	private String title;
 	private String episodeNumber;
 	private String seasonNumber;
-	private Bitmap image;
+	
+	public Episode() {
+		super();
+	}
 	
 	public String getTvShowTitle() {
 		return tvShowTitle;
@@ -26,12 +27,6 @@ public class Episode {
 	public void setTvShowID(int tvShowID) {
 		this.tvShowID = tvShowID;
 	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
 	public String getEpisodeNumber() {
 		return episodeNumber;
 	}
@@ -43,12 +38,6 @@ public class Episode {
 	}
 	public void setSeasonNumber(int seasonNumber) {
 		this.seasonNumber = formatNumber(FORMAT_SEASON, seasonNumber);
-	}
-	public Bitmap getImage() {
-		return image;
-	}
-	public void setImage(Bitmap image) {
-		this.image = image;
 	}
 
 	public static String formatNumber(String type, int value) {

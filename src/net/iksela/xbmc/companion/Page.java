@@ -6,7 +6,9 @@ package net.iksela.xbmc.companion;
  *
  */
 public enum Page {
-	FIRST (0, R.layout.page1, R.string.title_section1);
+	FIRST	(0, R.layout.page1, R.string.title_section1),
+	SECOND	(1, R.layout.page2, R.string.title_section2),
+	THIRD	(2, R.layout.page3, R.string.title_section3);
 	
 	private final int index;
 	private final int layoutID;

@@ -1,5 +1,9 @@
 package net.iksela.xbmc.companion.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.iksela.xbmc.companion.data.Actor;
 import net.iksela.xbmc.companion.data.Episode;
 
 import org.json.JSONArray;
@@ -134,6 +138,8 @@ public class XbmcApi {
 			details.put("episode");
 			details.put("tvshowid");
 			details.put("fanart");
+			details.put("plot");
+			details.put("cast");
 			
 			JSONObject params = new JSONObject();
 			params.put("episodeid", this._videoID);
@@ -144,14 +150,30 @@ public class XbmcApi {
 		}
 		
 		JsonRpc.Response r = q.send(_connection);
+		String resultName = "episodedetails";
 		
 		Episode episode = new Episode();
-		episode.setEpisodeNumber(r.getIntFromObjectResult("episodedetails", "episode"));
-		episode.setTvShowID(r.getIntFromObjectResult("episodedetails", "tvshowid"));
-		episode.setSeasonNumber(r.getIntFromObjectResult("episodedetails", "season"));
-		episode.setTitle(r.getStringFromObjectResult("episodedetails", "label"));
-		Bitmap image = _connection.getImage(r.getStringFromObjectResult("episodedetails", "fanart"));
+		episode.setEpisodeNumber(r.getIntFromObjectResult(resultName, "episode"));
+		episode.setTvShowID(r.getIntFromObjectResult(resultName, "tvshowid"));
+		episode.setSeasonNumber(r.getIntFromObjectResult(resultName, "season"));
+		episode.setTitle(r.getStringFromObjectResult(resultName, "label"));
+		Bitmap image = _connection.getImage(r.getStringFromObjectResult(resultName, "fanart"));
 		episode.setImage(image);
+		episode.setPlot(r.getStringFromObjectResult(resultName, "plot"));
+		JSONArray cast = r.getArrayFromObjectResult(resultName, "cast");
+		List<Actor> actors = new ArrayList<Actor>();
+		for (int i=0; i<cast.length(); i++) {
+			try {
+				JSONObject object = (JSONObject) cast.get(i);
+				String role = object.getString("role");
+				if (role != null && !role.isEmpty()) {
+					actors.add(new Actor(object.getString("name"), role));
+				}
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		episode.setCast(actors);
 		return episode;
 	}
 	

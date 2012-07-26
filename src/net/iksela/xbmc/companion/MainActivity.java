@@ -1,8 +1,15 @@
 package net.iksela.xbmc.companion;
 
+import java.util.List;
+import java.util.Vector;
+
 import net.iksela.xbmc.companion.api.XbmcApi;
 import net.iksela.xbmc.companion.api.XbmcConnection;
-import net.iksela.xbmc.companion.data.Episode;
+import net.iksela.xbmc.companion.data.Video;
+import net.iksela.xbmc.companion.fragments.AbstractFragment;
+import net.iksela.xbmc.companion.fragments.CastFragment;
+import net.iksela.xbmc.companion.fragments.NowPlayingFragment;
+import net.iksela.xbmc.companion.fragments.PlotFragment;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,13 +22,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity {
@@ -34,21 +37,24 @@ public class MainActivity extends FragmentActivity {
 	 * intensive, it may be best to switch to a
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
-	SectionsPagerAdapter mSectionsPagerAdapter;
+	//SectionsPagerAdapter mSectionsPagerAdapter;
+	SwipePagerAdapter mSwipePagerAdapter;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
-	ViewPager mViewPager;
+	public ViewPager mViewPager;
+	Menu menu;
 	
 	XbmcApi xbmc;
-	
-	Menu menu;
+	public Video video;
+	public BitmapDrawable[] backgrounds;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		/*
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections
 		// of the app.
@@ -57,7 +63,31 @@ public class MainActivity extends FragmentActivity {
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-
+		*/
+		List<AbstractFragment> fragments = new Vector<AbstractFragment>();
+		fragments.add((AbstractFragment) Fragment.instantiate(this, NowPlayingFragment.class.getName()));
+		fragments.add((AbstractFragment) Fragment.instantiate(this, PlotFragment.class.getName()));
+		fragments.add((AbstractFragment) Fragment.instantiate(this, CastFragment.class.getName()));
+		this.mSwipePagerAdapter = new SwipePagerAdapter(super.getSupportFragmentManager(), fragments);
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mSwipePagerAdapter);
+		/*
+		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int arg0) {
+				Log.d("OnPageChangeListener", "onPageSelected - "+arg0);
+			}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+			}
+		});
+		*/
 	}
 
 	@Override
@@ -77,7 +107,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		protected Integer doInBackground(String... params) {
 			if (xbmc.isReachable()) {
-				if (xbmc.hasVideoPlayer()) {
+				if (xbmc.hasVideoPlayer()) {					
 					SettingsProvider settings = new SettingsProvider(getApplicationContext());
 					int status = xbmc.getPlaybackStatus();
 					if (settings.getAutoPause() && status == XbmcApi.PLAYER_PLAYING) {
@@ -87,21 +117,48 @@ public class MainActivity extends FragmentActivity {
 						updatePlayPauseMenu(status);
 					}
 					if (xbmc.getNowPlayingType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
-						final Episode episode = xbmc.getEpisode();
-						final BitmapDrawable drawable = UIHelper.getOptimizedDrawable(episode.getImage(), getResources(), (RelativeLayout)findViewById(R.id.page1));
-						
+						// Set Data
+						MainActivity.this.video = xbmc.getEpisode();
+						// and backgrounds
+						MainActivity.this.backgrounds = UIHelper.getPieces(
+								mSwipePagerAdapter.fragments.size(),
+								MainActivity.this.video.getImage(),
+								mViewPager.getHeight(), mViewPager.getWidth(),
+								getResources()
+						);
 						// Update UI
 						MainActivity.this.runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
+								for (AbstractFragment f : mSwipePagerAdapter.fragments) {
+									if (f.getView() != null) {
+										f.updateUI(f.getView());
+									}
+								}
+								//mSwipePagerAdapter.
+								/*
+								// Now playing
 								((TextView)findViewById(R.id.textViewEpisodeTitle)).setText(episode.getTitle());
 								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode.getEpisodeNumber());
 								((TextView)findViewById(R.id.textViewSeasonXX)).setText(episode.getSeasonNumber());
 								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(episode.getTvShowTitle());
-								
 								((RelativeLayout)findViewById(R.id.page1)).setBackgroundDrawable(drawable);
+								
+								// Plot
+								((TextView)findViewById(R.id.textViewPlot)).setText(episode.getPlot());
+								// TODO: do something prettier
+								((RelativeLayout)findViewById(R.id.page2)).setBackgroundDrawable(drawable);
+								
+								// Cast
+								// TODO: do something prettier
+								RelativeLayout a = (RelativeLayout)findViewById(R.id.page2);
+								if (a != null) a.setBackgroundDrawable(drawable);
+								CastAdapter adapter = new CastAdapter(MainActivity.this, R.layout.cast, episode.getCast());
+								((ListView)findViewById(R.id.listView1)).setAdapter(adapter);
+								*/
 							}
 						});
+						
 					}
 					return OK;
 				}
@@ -226,70 +283,126 @@ public class MainActivity extends FragmentActivity {
 		}
 		
 	}
+	
+	public class SwipePagerAdapter extends FragmentPagerAdapter {
+		
+		private List<AbstractFragment> fragments;
+		private AbstractFragment currentFragment;
 
-	/**
-	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-	 * one of the primary sections of the app.
-	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-		public SectionsPagerAdapter(FragmentManager fm) {
+		public SwipePagerAdapter(FragmentManager fm, List<AbstractFragment> fragments) {
 			super(fm);
+			this.fragments = fragments;
 		}
 
 		@Override
-		public Fragment getItem(int i) {
-			Fragment fragment = new LayoutInflaterFragment();
-			Bundle args = new Bundle();
-			args.putInt(LayoutInflaterFragment.INDEX, i);
-			fragment.setArguments(args);
-
-			return fragment;
+		public Fragment getItem(int position) {
+			return this.fragments.get(position);
 		}
 
 		@Override
 		public int getCount() {
-			/*
-			 * return 3;
-			 */
-			return Page.values().length;
+			return this.fragments.size();
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			/*
-			 * switch (position) { case 0: return
-			 * getString(R.string.title_section1).toUpperCase(); case 1: return
-			 * getString(R.string.title_section2).toUpperCase(); case 2: return
-			 * getString(R.string.title_section3).toUpperCase(); } return null
-			 */
-
-			return getString(Page.getByIndex(position).getTitleID()).toUpperCase();
+			return getString(this.fragments.get(position).getTitleID()).toUpperCase();
 		}
-	}
-
-	/**
-	 * A dummy fragment representing a section of the app, but that simply
-	 * displays dummy text.
-	 */
-	public static class LayoutInflaterFragment extends Fragment {
-		public LayoutInflaterFragment() {
-		}
-
-		public static final String INDEX = "index";
-
+		
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			Bundle args = getArguments();
-			int pageID = args.getInt(INDEX);
-
-			return inflater.inflate(Page.getByIndex(pageID).getLayoutID(), container, false);
-			/*
-			 * if (pageID == 1) { return inflater.inflate(R.layout.page1,
-			 * container, false); } TextView textView = new
-			 * TextView(getActivity()); textView.setGravity(Gravity.CENTER);
-			 * textView.setText(Integer.toString(pageID)); return textView;
-			 */
+		public void setPrimaryItem(ViewGroup container, int position, Object object) {
+			super.setPrimaryItem(container, position, object);
+			currentFragment = (AbstractFragment)object;
+		}
+		
+		public AbstractFragment getCurrentFragment() {
+			return currentFragment;
 		}
 	}
+
+//	/**
+//	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+//	 * one of the primary sections of the app.
+//	 */
+//	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+//
+//		public SectionsPagerAdapter(FragmentManager fm) {
+//			super(fm);
+//		}
+//
+//		@Override
+//		public Fragment getItem(int i) {
+//			Fragment fragment = new LayoutInflaterFragment();
+//			Bundle args = new Bundle();
+//			args.putInt(LayoutInflaterFragment.INDEX, i);
+//			fragment.setArguments(args);
+//
+//			return fragment;
+//		}
+//
+//		@Override
+//		public int getCount() {
+//			/*
+//			 * return 3;
+//			 */
+//			return Page.values().length;
+//		}
+//		
+//		@Override
+//		public void destroyItem(ViewGroup container, int position, Object object) {
+//			// NOTHING!
+//		}
+//
+//		@Override
+//		public CharSequence getPageTitle(int position) {
+//			/*
+//			 * switch (position) { case 0: return
+//			 * getString(R.string.title_section1).toUpperCase(); case 1: return
+//			 * getString(R.string.title_section2).toUpperCase(); case 2: return
+//			 * getString(R.string.title_section3).toUpperCase(); } return null
+//			 */
+//
+//			return getString(Page.getByIndex(position).getTitleID()).toUpperCase();
+//		}
+//	}
+//
+//	/**
+//	 * A dummy fragment representing a section of the app, but that simply
+//	 * displays dummy text.
+//	 */
+//	public static class LayoutInflaterFragment extends Fragment {
+//		public LayoutInflaterFragment() {
+//		}
+//
+//		public static final String INDEX = "index";
+//
+//		@Override
+//		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//			Bundle args = getArguments();
+//			int pageID = args.getInt(INDEX);
+//			
+//			Log.d("FRAGMENT", "onCreateView: "+pageID);
+//			
+///*
+//			View v = inflater.inflate(Page.getByIndex(pageID).getLayoutID(), container, false);
+//			if (pageID == 0) Log.e("TEST", ((TextView)v.findViewById(R.id.textViewEpisodeTitle)).getText().toString());
+//			((MainActivity)getActivity()).reloadFragment(pageID);
+//			return v;
+//			*/
+//			return inflater.inflate(Page.getByIndex(pageID).getLayoutID(), container, false);
+//			/*
+//			 * if (pageID == 1) { return inflater.inflate(R.layout.page1,
+//			 * container, false); } TextView textView = new
+//			 * TextView(getActivity()); textView.setGravity(Gravity.CENTER);
+//			 * textView.setText(Integer.toString(pageID)); return textView;
+//			 */
+//		}
+//		
+//		@Override
+//		public void onDestroyView() {
+//			// TODO Auto-generated method stub
+//			super.onDestroyView();
+//			Log.d("FRAGMENT", "onDestroyView: "+getArguments().getInt(INDEX));
+//		}
+//	}
 }

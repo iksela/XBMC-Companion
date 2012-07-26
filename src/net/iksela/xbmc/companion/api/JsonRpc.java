@@ -185,5 +185,14 @@ public class JsonRpc {
 			}
 			return null;
 		}
+		
+		public JSONArray getArrayFromObjectResult(String objectName, String propertyName) {
+			try {
+				return this.getObjectResult(objectName).getJSONArray(propertyName);
+			} catch (JSONException e) {
+				Log.e(TAG, e.getMessage());
+			}
+			return null;
+		}
 	}
 }
