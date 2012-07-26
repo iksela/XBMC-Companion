@@ -24,7 +24,7 @@ public class XbmcConnection {
 	private final static String URL_JSON = "jsonrpc";
 	private final static String URL_VFS = "vfs/";
 	
-	private final static int TIMEOUT = 1000;
+	private final static int TIMEOUT = 5000;
 
 	private HttpClient _client;
 

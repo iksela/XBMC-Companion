@@ -21,30 +21,31 @@ public final class R {
         public static final int ic_menu_refresh=0x7f020002;
     }
     public static final class id {
-        public static final int RelativeLayout1=0x7f090011;
+        public static final int RelativeLayout1=0x7f090012;
         public static final int editText1=0x7f090003;
         public static final int editText2=0x7f090004;
         public static final int editText3=0x7f090005;
         public static final int editText4=0x7f090006;
-        public static final int listView1=0x7f090014;
-        public static final int menu_playpause=0x7f090016;
-        public static final int menu_refresh=0x7f090015;
-        public static final int menu_settings=0x7f090017;
-        public static final int page1=0x7f09000a;
-        public static final int page2=0x7f09000f;
-        public static final int page3=0x7f090013;
+        public static final int listView1=0x7f090015;
+        public static final int menu_playpause=0x7f090017;
+        public static final int menu_refresh=0x7f090016;
+        public static final int menu_settings=0x7f090018;
+        public static final int page1=0x7f09000b;
+        public static final int page2=0x7f090010;
+        public static final int page3=0x7f090014;
         public static final int pager=0x7f090000;
         public static final int pager_title_strip=0x7f090001;
         public static final int progressBar1=0x7f090009;
-        public static final int scrollView1=0x7f090010;
+        public static final int scrollView1=0x7f090011;
         public static final int textView1=0x7f090002;
         public static final int textViewActorName=0x7f090007;
         public static final int textViewActorRole=0x7f090008;
-        public static final int textViewEpisodeTitle=0x7f09000d;
-        public static final int textViewEpisodeXX=0x7f09000b;
-        public static final int textViewPlot=0x7f090012;
-        public static final int textViewSeasonXX=0x7f09000c;
-        public static final int textViewTVShowTitle=0x7f09000e;
+        public static final int textViewEpisodeTitle=0x7f09000e;
+        public static final int textViewEpisodeXX=0x7f09000c;
+        public static final int textViewLoading=0x7f09000a;
+        public static final int textViewPlot=0x7f090013;
+        public static final int textViewSeasonXX=0x7f09000d;
+        public static final int textViewTVShowTitle=0x7f09000f;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -62,7 +63,12 @@ public final class R {
     public static final class string {
         public static final int app_name=0x7f060000;
         public static final int error=0x7f06001c;
-        public static final int loading=0x7f06001e;
+        public static final int error_novideoplayer=0x7f06001d;
+        public static final int error_unreachable=0x7f06001e;
+        public static final int loading=0x7f060020;
+        public static final int loading_connect=0x7f060021;
+        public static final int loading_data=0x7f060022;
+        public static final int loading_data_format=0x7f060023;
         public static final int menu_playpause=0x7f060019;
         public static final int menu_refresh=0x7f060012;
         public static final int menu_settings=0x7f060005;
@@ -85,7 +91,7 @@ public final class R {
         public static final int settings_username=0x7f06000f;
         public static final int status_paused=0x7f06001a;
         public static final int status_playing=0x7f06001b;
-        public static final int test=0x7f06001d;
+        public static final int test=0x7f06001f;
         public static final int title_activity_main=0x7f060006;
         public static final int title_activity_settings=0x7f060007;
         public static final int title_section1=0x7f060003;

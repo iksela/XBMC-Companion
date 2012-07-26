@@ -24,26 +24,22 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 public class MainActivity extends FragmentActivity {
 
-	/**
-	 * The {@link android.support.v4.view.PagerAdapter} that will provide
-	 * fragments for each of the sections. We use a
-	 * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-	 * will keep every loaded fragment in memory. If this becomes too memory
-	 * intensive, it may be best to switch to a
-	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-	 */
-	//SectionsPagerAdapter mSectionsPagerAdapter;
 	SwipePagerAdapter mSwipePagerAdapter;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	public ViewPager mViewPager;
+	public ViewSwitcher switcher;
 	Menu menu;
 	
 	XbmcApi xbmc;
@@ -53,17 +49,14 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		/*
-		// Create the adapter that will return a fragment for each of the three
-		// primary sections
-		// of the app.
-		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+		//setContentView(R.layout.activity_main);
+		
+		// Creates switcher for loading screen
+		switcher = new ViewSwitcher(this);
+		switcher.addView(View.inflate(this, R.layout.loading, null));
+		switcher.addView(View.inflate(this, R.layout.activity_main, null));
+		setContentView(switcher);
 
-		// Set up the ViewPager with the sections adapter.
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(mSectionsPagerAdapter);
-		*/
 		List<AbstractFragment> fragments = new Vector<AbstractFragment>();
 		fragments.add((AbstractFragment) Fragment.instantiate(this, NowPlayingFragment.class.getName()));
 		fragments.add((AbstractFragment) Fragment.instantiate(this, PlotFragment.class.getName()));
@@ -71,23 +64,6 @@ public class MainActivity extends FragmentActivity {
 		this.mSwipePagerAdapter = new SwipePagerAdapter(super.getSupportFragmentManager(), fragments);
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSwipePagerAdapter);
-		/*
-		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
-			
-			@Override
-			public void onPageSelected(int arg0) {
-				Log.d("OnPageChangeListener", "onPageSelected - "+arg0);
-			}
-			
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-			}
-			
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-			}
-		});
-		*/
 	}
 
 	@Override
@@ -95,6 +71,7 @@ public class MainActivity extends FragmentActivity {
 		super.onResume();
 		
 		xbmc = new XbmcApi(new XbmcConnection(getApplicationContext()));
+		updateLoadingMessage(R.string.loading_connect);
 		new StartConnectionTask().execute();
 	}
 
@@ -117,13 +94,16 @@ public class MainActivity extends FragmentActivity {
 						updatePlayPauseMenu(status);
 					}
 					if (xbmc.getNowPlayingType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
+						updateLoadingMessage(R.string.loading_data);
 						// Set Data
 						MainActivity.this.video = xbmc.getEpisode();
 						// and backgrounds
+						updateLoadingMessage(R.string.loading_data_format);
+						View root = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
 						MainActivity.this.backgrounds = UIHelper.getPieces(
 								mSwipePagerAdapter.fragments.size(),
 								MainActivity.this.video.getImage(),
-								mViewPager.getHeight(), mViewPager.getWidth(),
+								root.getHeight(), root.getWidth(),
 								getResources()
 						);
 						// Update UI
@@ -135,27 +115,8 @@ public class MainActivity extends FragmentActivity {
 										f.updateUI(f.getView());
 									}
 								}
-								//mSwipePagerAdapter.
-								/*
-								// Now playing
-								((TextView)findViewById(R.id.textViewEpisodeTitle)).setText(episode.getTitle());
-								((TextView)findViewById(R.id.textViewEpisodeXX)).setText(episode.getEpisodeNumber());
-								((TextView)findViewById(R.id.textViewSeasonXX)).setText(episode.getSeasonNumber());
-								((TextView)findViewById(R.id.textViewTVShowTitle)).setText(episode.getTvShowTitle());
-								((RelativeLayout)findViewById(R.id.page1)).setBackgroundDrawable(drawable);
-								
-								// Plot
-								((TextView)findViewById(R.id.textViewPlot)).setText(episode.getPlot());
-								// TODO: do something prettier
-								((RelativeLayout)findViewById(R.id.page2)).setBackgroundDrawable(drawable);
-								
-								// Cast
-								// TODO: do something prettier
-								RelativeLayout a = (RelativeLayout)findViewById(R.id.page2);
-								if (a != null) a.setBackgroundDrawable(drawable);
-								CastAdapter adapter = new CastAdapter(MainActivity.this, R.layout.cast, episode.getCast());
-								((ListView)findViewById(R.id.listView1)).setAdapter(adapter);
-								*/
+								// Hide loading screen
+								switcher.showNext();
 							}
 						});
 						
@@ -178,7 +139,7 @@ public class MainActivity extends FragmentActivity {
 			switch (result) {
 				case 1:
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-					builder.setMessage("Couldn't connect to XBMC.")
+					builder.setMessage(R.string.error_unreachable)
 						.setCancelable(false)
 						.setPositiveButton("Show settings", new DialogInterface.OnClickListener() {
 							@Override
@@ -194,9 +155,13 @@ public class MainActivity extends FragmentActivity {
 							}
 						});
 					builder.create().show();
+					updateLoadingMessage(R.string.error_unreachable);
+					((ProgressBar)findViewById(R.id.progressBar1)).setVisibility(View.INVISIBLE);
 					break;
 				case 2:
-					Toast.makeText(MainActivity.this, "No videoplayer is currently on.", Toast.LENGTH_LONG).show();
+					updateLoadingMessage(R.string.error_novideoplayer);
+					((ProgressBar)findViewById(R.id.progressBar1)).setVisibility(View.INVISIBLE);
+					//Toast.makeText(MainActivity.this, "No videoplayer is currently on.", Toast.LENGTH_LONG).show();
 					break;
 			}
 		}
@@ -213,6 +178,15 @@ public class MainActivity extends FragmentActivity {
 	public void refreshActivity() {
 		finish();
 		startActivity(getIntent());
+	}
+	
+	public void updateLoadingMessage(final int string) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				((TextView)findViewById(R.id.textViewLoading)).setText(string);
+			}
+		});
 	}
 
 	@Override
@@ -319,90 +293,4 @@ public class MainActivity extends FragmentActivity {
 			return currentFragment;
 		}
 	}
-
-//	/**
-//	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-//	 * one of the primary sections of the app.
-//	 */
-//	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-//
-//		public SectionsPagerAdapter(FragmentManager fm) {
-//			super(fm);
-//		}
-//
-//		@Override
-//		public Fragment getItem(int i) {
-//			Fragment fragment = new LayoutInflaterFragment();
-//			Bundle args = new Bundle();
-//			args.putInt(LayoutInflaterFragment.INDEX, i);
-//			fragment.setArguments(args);
-//
-//			return fragment;
-//		}
-//
-//		@Override
-//		public int getCount() {
-//			/*
-//			 * return 3;
-//			 */
-//			return Page.values().length;
-//		}
-//		
-//		@Override
-//		public void destroyItem(ViewGroup container, int position, Object object) {
-//			// NOTHING!
-//		}
-//
-//		@Override
-//		public CharSequence getPageTitle(int position) {
-//			/*
-//			 * switch (position) { case 0: return
-//			 * getString(R.string.title_section1).toUpperCase(); case 1: return
-//			 * getString(R.string.title_section2).toUpperCase(); case 2: return
-//			 * getString(R.string.title_section3).toUpperCase(); } return null
-//			 */
-//
-//			return getString(Page.getByIndex(position).getTitleID()).toUpperCase();
-//		}
-//	}
-//
-//	/**
-//	 * A dummy fragment representing a section of the app, but that simply
-//	 * displays dummy text.
-//	 */
-//	public static class LayoutInflaterFragment extends Fragment {
-//		public LayoutInflaterFragment() {
-//		}
-//
-//		public static final String INDEX = "index";
-//
-//		@Override
-//		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//			Bundle args = getArguments();
-//			int pageID = args.getInt(INDEX);
-//			
-//			Log.d("FRAGMENT", "onCreateView: "+pageID);
-//			
-///*
-//			View v = inflater.inflate(Page.getByIndex(pageID).getLayoutID(), container, false);
-//			if (pageID == 0) Log.e("TEST", ((TextView)v.findViewById(R.id.textViewEpisodeTitle)).getText().toString());
-//			((MainActivity)getActivity()).reloadFragment(pageID);
-//			return v;
-//			*/
-//			return inflater.inflate(Page.getByIndex(pageID).getLayoutID(), container, false);
-//			/*
-//			 * if (pageID == 1) { return inflater.inflate(R.layout.page1,
-//			 * container, false); } TextView textView = new
-//			 * TextView(getActivity()); textView.setGravity(Gravity.CENTER);
-//			 * textView.setText(Integer.toString(pageID)); return textView;
-//			 */
-//		}
-//		
-//		@Override
-//		public void onDestroyView() {
-//			// TODO Auto-generated method stub
-//			super.onDestroyView();
-//			Log.d("FRAGMENT", "onDestroyView: "+getArguments().getInt(INDEX));
-//		}
-//	}
 }
