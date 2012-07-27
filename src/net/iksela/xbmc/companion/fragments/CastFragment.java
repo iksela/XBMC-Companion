@@ -64,7 +64,13 @@ public class CastFragment extends AbstractFragment {
 									startSearchActivity("http://en.wikipedia.org/wiki/" + actor.getName());
 									return true;
 								case R.id.itemCastSearchImdb:
-									startSearchActivity("http://www.imdb.com/find?q=" + actor.getName() + "&s=nm");
+									String uriIntent = "imdb:///find?q=" + actor.getName();
+									if (MainActivity.isUriAvailable(activity, uriIntent)) {
+										startSearchActivity(uriIntent);
+									}
+									else {
+										startSearchActivity("http://www.imdb.com/find?q=" + actor.getName() + "&s=nm");
+									}
 									return true;
 								default:
 									return false;
