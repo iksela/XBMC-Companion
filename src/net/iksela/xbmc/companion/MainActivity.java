@@ -44,6 +44,7 @@ public class MainActivity extends FragmentActivity {
 	public ViewSwitcher switcher;
 	Menu menu;
 	
+	public boolean isReady = false; 
 	XbmcApi xbmc;
 	public Video video;
 	public BitmapDrawable[] backgrounds;
@@ -51,7 +52,6 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//setContentView(R.layout.activity_main);
 		Log.v(TAG, "onCreate");
 		
 		// Creates switcher for loading screen
@@ -60,6 +60,7 @@ public class MainActivity extends FragmentActivity {
 		switcher.addView(View.inflate(this, R.layout.activity_main, null));
 		setContentView(switcher);
 
+		// Load fragments in swipe pager
 		List<AbstractFragment> fragments = new Vector<AbstractFragment>();
 		fragments.add((AbstractFragment) Fragment.instantiate(this, NowPlayingFragment.class.getName()));
 		fragments.add((AbstractFragment) Fragment.instantiate(this, PlotFragment.class.getName()));
@@ -67,19 +68,21 @@ public class MainActivity extends FragmentActivity {
 		this.mSwipePagerAdapter = new SwipePagerAdapter(super.getSupportFragmentManager(), fragments);
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSwipePagerAdapter);
+		
+		// Create XBMC connection and start retrieving data
+		if (!isReady) {
+			xbmc = new XbmcApi(new XbmcConnection(getApplicationContext()));
+			new MainXbmcConnectionTask().execute();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		Log.v(TAG, "onResume");
-		
-		xbmc = new XbmcApi(new XbmcConnection(getApplicationContext()));
-		updateLoadingMessage(R.string.loading_connect);
-		new StartConnectionTask().execute();
 	}
 
-	private class StartConnectionTask extends AsyncTask<String, Void, Integer> {
+	private class MainXbmcConnectionTask extends AsyncTask<String, Void, Integer> {
 
 		private static final int OK				= 0;
 		private static final int UNREACHABLE	= 1;
@@ -87,6 +90,7 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected Integer doInBackground(String... params) {
+			updateLoadingMessage(R.string.loading_connect);
 			if (xbmc.isReachable()) {
 				if (xbmc.hasVideoPlayer()) {					
 					SettingsProvider settings = new SettingsProvider(getApplicationContext());
@@ -114,6 +118,7 @@ public class MainActivity extends FragmentActivity {
 						MainActivity.this.runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
+								Log.v(TAG, "Updating UI");
 								for (AbstractFragment f : mSwipePagerAdapter.fragments) {
 									if (f.getView() != null) {
 										f.updateUI(f.getView());
@@ -141,7 +146,11 @@ public class MainActivity extends FragmentActivity {
 			super.onPostExecute(result);
 			Log.i("task", "onPostExecute: " + result);
 			switch (result) {
-				case 1:
+				case OK:
+					// Set status = ready
+					isReady = true;
+					break;
+				case UNREACHABLE:
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setMessage(R.string.error_unreachable)
 						.setCancelable(false)
@@ -162,10 +171,9 @@ public class MainActivity extends FragmentActivity {
 					updateLoadingMessage(R.string.error_unreachable);
 					((ProgressBar)findViewById(R.id.progressBar1)).setVisibility(View.INVISIBLE);
 					break;
-				case 2:
+				case NO_VIDEOPLAYER:
 					updateLoadingMessage(R.string.error_novideoplayer);
 					((ProgressBar)findViewById(R.id.progressBar1)).setVisibility(View.INVISIBLE);
-					//Toast.makeText(MainActivity.this, "No videoplayer is currently on.", Toast.LENGTH_LONG).show();
 					break;
 			}
 		}
@@ -179,9 +187,9 @@ public class MainActivity extends FragmentActivity {
 		startActivity(new Intent(this, SettingsActivity.class));
 	}
 	
-	public void refreshActivity() {
-		finish();
-		startActivity(getIntent());
+	public void refreshData() {
+		switcher.showPrevious();
+		new MainXbmcConnectionTask().execute();
 	}
 	
 	public void updateLoadingMessage(final int string) {
@@ -204,7 +212,7 @@ public class MainActivity extends FragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_refresh:
-				refreshActivity();
+				refreshData();
 				return true;
 			case R.id.menu_settings:
 				launchSettingsActivity();
