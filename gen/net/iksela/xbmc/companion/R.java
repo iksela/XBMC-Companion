@@ -22,6 +22,9 @@ public final class R {
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f09000d;
+        public static final int itemCastSearchGoogle=0x7f090014;
+        public static final int itemCastSearchImdb=0x7f090016;
+        public static final int itemCastSearchWikipedia=0x7f090015;
         public static final int listView1=0x7f090010;
         public static final int menu_playpause=0x7f090012;
         public static final int menu_refresh=0x7f090011;
@@ -53,6 +56,7 @@ public final class R {
     public static final class menu {
         public static final int activity_main=0x7f080000;
         public static final int activity_settings=0x7f080001;
+        public static final int cast_search=0x7f080002;
     }
     public static final class string {
         public static final int app_name=0x7f060000;
@@ -63,6 +67,9 @@ public final class R {
         public static final int loading_connect=0x7f060020;
         public static final int loading_data=0x7f060021;
         public static final int loading_data_format=0x7f060022;
+        public static final int menu_castsearch_google=0x7f060023;
+        public static final int menu_castsearch_imdb=0x7f060025;
+        public static final int menu_castsearch_wikipedia=0x7f060024;
         public static final int menu_playpause=0x7f060019;
         public static final int menu_refresh=0x7f060012;
         public static final int menu_settings=0x7f060005;

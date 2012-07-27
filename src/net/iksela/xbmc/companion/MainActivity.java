@@ -32,6 +32,8 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 public class MainActivity extends FragmentActivity {
+	
+	private final static String TAG = "MAIN";
 
 	SwipePagerAdapter mSwipePagerAdapter;
 
@@ -50,6 +52,7 @@ public class MainActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.activity_main);
+		Log.v(TAG, "onCreate");
 		
 		// Creates switcher for loading screen
 		switcher = new ViewSwitcher(this);
@@ -69,6 +72,7 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.v(TAG, "onResume");
 		
 		xbmc = new XbmcApi(new XbmcConnection(getApplicationContext()));
 		updateLoadingMessage(R.string.loading_connect);

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/itemCastSearchGoogle" android:title="@string/menu_castsearch_google"/><item android:id="@+id/itemCastSearchWikipedia" android:title="@string/menu_castsearch_wikipedia"/><item android:id="@+id/itemCastSearchImdb" android:title="@string/menu_castsearch_imdb"/>
+    
+
+</menu>
