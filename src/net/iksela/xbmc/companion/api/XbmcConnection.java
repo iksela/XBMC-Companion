@@ -4,6 +4,9 @@ import java.io.InputStream;
 
 import net.iksela.xbmc.companion.helpers.SettingsProvider;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -26,7 +29,7 @@ public class XbmcConnection {
 	
 	private final static int TIMEOUT = 5000;
 
-	private HttpClient _client;
+	private DefaultHttpClient _client;
 
 	private SettingsProvider _settings;
 
@@ -41,6 +44,10 @@ public class XbmcConnection {
 		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
 		HttpConnectionParams.setSoTimeout(params, TIMEOUT);
 		this._client = new DefaultHttpClient(params);
+		if (this._settings.getPassword() != null) {
+			Credentials creds = new UsernamePasswordCredentials(this._settings.getUserName(), this._settings.getPassword());
+			this._client.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), creds);
+		}
 	}
 
 	/**
