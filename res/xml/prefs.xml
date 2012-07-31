@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:robobunny="http://robobunny.com">
 
     <PreferenceCategory android:title="@string/settings_label_connectivity" >
         <EditTextPreference
@@ -22,6 +22,16 @@
             android:defaultValue="true"
             android:summary="@string/settings_label_autopause_long"
             android:title="@string/settings_label_autopause" />
+        <com.robobunny.SeekBarPreference
+            android:key="@string/settings_darkness"
+                android:title="@string/settings_label_darkness"
+                android:summary="@string/settings_label_darkness_long"
+                android:defaultValue="25"
+                android:max="100"
+                robobunny:min="0"
+            	robobunny:unitsLeft=""
+                robobunny:unitsRight="%"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_label_about" >
         <Preference

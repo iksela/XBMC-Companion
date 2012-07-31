@@ -1,4 +1,4 @@
-package net.iksela.xbmc.companion;
+package net.iksela.xbmc.companion.helpers;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -48,11 +48,12 @@ public class UIHelper {
 		return backgrounds;
 	}
 
-	public static BitmapDrawable[] getPieces(int pieces, Bitmap source, int newHeight, int newWidth, Resources res) {
+	public static BitmapDrawable[] getPieces(int pieces, Bitmap source, int newHeight, int newWidth, int darkness, Resources res) {
 		Bitmap[] bitmaps = UIHelper.getBitmapPieces(pieces, source, newHeight, newWidth);
 		BitmapDrawable[] backgrounds = new BitmapDrawable[pieces];
+		int modifier = -darkness*255/100;
 		for (int i = 0; i < pieces; i++) {
-			backgrounds[i] = new BitmapDrawable(res, UIHelper.darken(bitmaps[i], -25));
+			backgrounds[i] = new BitmapDrawable(res, UIHelper.darken(bitmaps[i], modifier));
 		}
 		return backgrounds;
 	}

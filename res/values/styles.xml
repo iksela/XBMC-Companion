@@ -3,7 +3,7 @@
     <style name="AppTheme" parent="android:Theme.Light" >
     </style>
     <style name="GlowingText" parent="AppTheme">
-        <item name="android:shadowColor">@android:color/holo_blue_dark</item>
+        <item name="android:shadowColor">@android:color/background_dark</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
         <item name="android:shadowRadius">8</item>

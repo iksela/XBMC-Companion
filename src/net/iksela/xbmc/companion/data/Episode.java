@@ -8,8 +8,8 @@ public class Episode extends Video {
 	
 	private String tvShowTitle;
 	private int tvShowID;
-	private String episodeNumber;
-	private String seasonNumber;
+	private int episodeNumber;
+	private int seasonNumber;
 	
 	public Episode() {
 		super();
@@ -27,17 +27,23 @@ public class Episode extends Video {
 	public void setTvShowID(int tvShowID) {
 		this.tvShowID = tvShowID;
 	}
-	public String getEpisodeNumber() {
+	public int getEpisodeNumber() {
 		return episodeNumber;
 	}
-	public void setEpisodeNumber(int episodeNumber) {
-		this.episodeNumber = formatNumber(FORMAT_EPISODE, episodeNumber);
+	public String getFormattedEpisodeNumber() {
+		return formatNumber(FORMAT_EPISODE, episodeNumber);
 	}
-	public String getSeasonNumber() {
+	public void setEpisodeNumber(int episodeNumber) {
+		this.episodeNumber = episodeNumber;
+	}
+	public int getSeasonNumber() {
 		return seasonNumber;
 	}
+	public String getFormattedSeasonNumber() {
+		return formatNumber(FORMAT_SEASON, seasonNumber);
+	}
 	public void setSeasonNumber(int seasonNumber) {
-		this.seasonNumber = formatNumber(FORMAT_SEASON, seasonNumber);
+		this.seasonNumber = seasonNumber;
 	}
 
 	public static String formatNumber(String type, int value) {

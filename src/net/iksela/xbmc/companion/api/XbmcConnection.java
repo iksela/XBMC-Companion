@@ -2,7 +2,7 @@ package net.iksela.xbmc.companion.api;
 
 import java.io.InputStream;
 
-import net.iksela.xbmc.companion.SettingsProvider;
+import net.iksela.xbmc.companion.helpers.SettingsProvider;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;

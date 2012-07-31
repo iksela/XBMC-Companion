@@ -51,4 +51,5 @@ public abstract class AbstractFragment extends Fragment {
 	}
 	
 	public abstract void updateUI(View view);
+	
 }

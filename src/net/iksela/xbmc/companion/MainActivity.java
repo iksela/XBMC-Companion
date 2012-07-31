@@ -10,12 +10,12 @@ import net.iksela.xbmc.companion.fragments.AbstractFragment;
 import net.iksela.xbmc.companion.fragments.CastFragment;
 import net.iksela.xbmc.companion.fragments.NowPlayingFragment;
 import net.iksela.xbmc.companion.fragments.PlotFragment;
+import net.iksela.xbmc.companion.helpers.SettingsProvider;
+import net.iksela.xbmc.companion.helpers.UIHelper;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -114,6 +114,7 @@ public class MainActivity extends FragmentActivity {
 								mSwipePagerAdapter.fragments.size(),
 								MainActivity.this.video.getImage(),
 								root.getHeight(), root.getWidth(),
+								settings.getDarkness(),
 								getResources()
 						);
 						// Update UI
@@ -270,11 +271,6 @@ public class MainActivity extends FragmentActivity {
 			Toast.makeText(MainActivity.this, string, Toast.LENGTH_SHORT).show();
 		}
 		
-	}
-	
-	public static boolean isUriAvailable(Context context, String uri) {
-	    Intent test = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-	    return context.getPackageManager().resolveActivity(test, 0) != null;
 	}
 	
 	public class SwipePagerAdapter extends FragmentPagerAdapter {
