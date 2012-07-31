@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.iksela.xbmc.companion.data.Actor;
 import net.iksela.xbmc.companion.data.Episode;
+import net.iksela.xbmc.companion.data.Video;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +19,7 @@ public class XbmcApi {
 	private final static String TAG = "API";
 	
 	public final static String VIDEO_TYPE_EPISODE = "episode";
-	//public final static String VIDEO_TYPE_MOVIE = "movie";
+	public final static String VIDEO_TYPE_MOVIE = "movie";
 	
 	public final static int PLAYER_PLAYING = 1;
 	public final static int PLAYER_PAUSED = 0;
@@ -27,6 +28,7 @@ public class XbmcApi {
 	
 	private int _playerID = -42;
 	private int _videoID = -42;
+	private String _videoType; 
 
 	protected enum JSONRPC {
 		Ping
@@ -41,7 +43,8 @@ public class XbmcApi {
 	
 	protected enum VideoLibrary {
 		GetEpisodeDetails,
-		GetTVShowDetails
+		GetTVShowDetails,
+		GetMovieDetails
 	}
 	
 	/**
@@ -50,6 +53,10 @@ public class XbmcApi {
 	 */
 	public XbmcApi(XbmcConnection connection) {
 		this._connection = connection;
+	}
+	
+	public String getVideoType() {
+		return _videoType;
 	}
 	
 	/**
@@ -101,7 +108,8 @@ public class XbmcApi {
 		
 		JsonRpc.Response r = q.send(_connection);
 		this._videoID = r.getIntFromObjectResult("item", "id");
-		return r.getStringFromObjectResult("item", "type");
+		this._videoType = r.getStringFromObjectResult("item", "type");
+		return this._videoType;
 	}
 	
 	/**
@@ -160,7 +168,39 @@ public class XbmcApi {
 		Bitmap image = _connection.getImage(r.getStringFromObjectResult(resultName, "fanart"));
 		episode.setImage(image);
 		episode.setPlot(r.getStringFromObjectResult(resultName, "plot"));
-		JSONArray cast = r.getArrayFromObjectResult(resultName, "cast");
+		episode.setCast(getActorsFromJSON(r.getArrayFromObjectResult(resultName, "cast")));
+		return episode;
+	}
+	
+	public Video getMovie() {
+		JsonRpc.Request q = new JsonRpc.Request(XbmcApi.VideoLibrary.GetMovieDetails);
+		try {
+			JSONArray details = new JSONArray();
+			details.put("fanart");
+			details.put("plot");
+			details.put("cast");
+			
+			JSONObject params = new JSONObject();
+			params.put("movieid", this._videoID);
+			params.put("properties", details);
+			q.setParameters(params);
+		} catch (JSONException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		
+		JsonRpc.Response r = q.send(_connection);
+		String resultName = "moviedetails";
+		
+		Video movie = new Video();
+		movie.setTitle(r.getStringFromObjectResult(resultName, "label"));
+		Bitmap image = _connection.getImage(r.getStringFromObjectResult(resultName, "fanart"));
+		movie.setImage(image);
+		movie.setPlot(r.getStringFromObjectResult(resultName, "plot"));
+		movie.setCast(getActorsFromJSON(r.getArrayFromObjectResult(resultName, "cast")));
+		return movie;
+	}
+
+	private List<Actor> getActorsFromJSON(JSONArray cast) {
 		List<Actor> actors = new ArrayList<Actor>();
 		for (int i=0; i<cast.length(); i++) {
 			try {
@@ -173,8 +213,19 @@ public class XbmcApi {
 				Log.e(TAG, e.getMessage());
 			}
 		}
-		episode.setCast(actors);
-		return episode;
+		return actors;
+	}
+	
+	public Video getVideo() {
+		String type = (this._videoType == null) ? this.getNowPlayingType() : this._videoType;
+
+		if (type.equals(VIDEO_TYPE_EPISODE)) {
+			return this.getEpisode();
+		}
+		else if (type.equals(VIDEO_TYPE_MOVIE)) {
+			return this.getMovie();
+		}
+		return null;
 	}
 	
 	public int getPlaybackStatus() {

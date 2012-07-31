@@ -17,7 +17,7 @@
             android:id="@+id/RelativeLayout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-
+
             <TextView
                 android:id="@+id/textViewPlot"
                 style="@style/GlowingText"
@@ -26,7 +26,6 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_margin="@dimen/padding_small"
-                android:text="Plot"
                 android:textSize="20dp" />
 
         </RelativeLayout>

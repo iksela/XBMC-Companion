@@ -4,7 +4,6 @@ import net.iksela.xbmc.companion.CastAdapter;
 import net.iksela.xbmc.companion.MainActivity;
 import net.iksela.xbmc.companion.R;
 import net.iksela.xbmc.companion.data.Actor;
-import net.iksela.xbmc.companion.data.Episode;
 import net.iksela.xbmc.companion.helpers.SearchPopupHelper;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,8 +23,7 @@ public class CastFragment extends AbstractFragment {
 		final MainActivity activity = (MainActivity) getActivity();
 
 		if (activity.video != null) {
-			Episode episode = (Episode) activity.video;
-			CastAdapter adapter = new CastAdapter(activity, R.layout.cast, episode.getCast());
+			CastAdapter adapter = new CastAdapter(activity, R.layout.cast, activity.video.getCast());
 			ListView list = (ListView) view.findViewById(R.id.listView1);
 			list.setAdapter(adapter);
 			list.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -2,7 +2,6 @@ package net.iksela.xbmc.companion.fragments;
 
 import net.iksela.xbmc.companion.MainActivity;
 import net.iksela.xbmc.companion.R;
-import net.iksela.xbmc.companion.data.Episode;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,8 +19,7 @@ public class PlotFragment extends AbstractFragment {
 		MainActivity activity = (MainActivity) getActivity();
 
 		if (activity.video != null) {
-			Episode episode = (Episode) activity.video;
-			((TextView) view.findViewById(R.id.textViewPlot)).setText(episode.getPlot());
+			((TextView) view.findViewById(R.id.textViewPlot)).setText(activity.video.getPlot());
 			((RelativeLayout) view.findViewById(R.id.page2)).setBackgroundDrawable(activity.backgrounds[1]);
 		}
 	}

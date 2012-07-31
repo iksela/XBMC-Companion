@@ -103,36 +103,37 @@ public class MainActivity extends FragmentActivity {
 					else {
 						updatePlayPauseMenu(status);
 					}
-					if (xbmc.getNowPlayingType().equals(XbmcApi.VIDEO_TYPE_EPISODE)) {
-						updateLoadingMessage(R.string.loading_data);
-						// Set Data
-						MainActivity.this.video = xbmc.getEpisode();
-						// and backgrounds
-						updateLoadingMessage(R.string.loading_data_format);
-						View root = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-						MainActivity.this.backgrounds = UIHelper.getPieces(
-								mSwipePagerAdapter.fragments.size(),
-								MainActivity.this.video.getImage(),
-								root.getHeight(), root.getWidth(),
-								settings.getDarkness(),
-								getResources()
-						);
-						// Update UI
-						MainActivity.this.runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								Log.v(TAG, "Updating UI");
-								for (AbstractFragment f : mSwipePagerAdapter.fragments) {
-									if (f.getView() != null) {
-										f.updateUI(f.getView());
-									}
+
+					updateLoadingMessage(R.string.loading_data);
+					
+					// Set Data
+					MainActivity.this.video = xbmc.getVideo();
+					
+					// and backgrounds
+					updateLoadingMessage(R.string.loading_data_format);
+					View root = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
+					MainActivity.this.backgrounds = UIHelper.getPieces(
+							mSwipePagerAdapter.fragments.size(),
+							MainActivity.this.video.getImage(),
+							root.getHeight(), root.getWidth(),
+							settings.getDarkness(),
+							getResources()
+					);
+					// Update UI
+					MainActivity.this.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Log.v(TAG, "Updating UI");
+							for (AbstractFragment f : mSwipePagerAdapter.fragments) {
+								if (f.getView() != null) {
+									f.updateUI(f.getView());
 								}
-								// Hide loading screen
-								switcher.showNext();
 							}
-						});
+							// Hide loading screen
+							switcher.showNext();
+						}
+					});
 						
-					}
 					return OK;
 				}
 				else {
@@ -191,8 +192,8 @@ public class MainActivity extends FragmentActivity {
 	}
 	
 	public void refreshData() {
-		switcher.showPrevious();
-		new MainXbmcConnectionTask().execute();
+		finish();
+		startActivity(getIntent());
 	}
 	
 	public void updateLoadingMessage(final int string) {

@@ -3,12 +3,16 @@ package net.iksela.xbmc.companion.api;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -96,8 +100,19 @@ public class JsonRpc {
 				post.setEntity(this.getStringEntity());
 				
 				HttpClient client = connection.getHttpClient();
+
+				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+					public String handleResponse(final HttpResponse response) throws HttpResponseException, IOException {
+						StatusLine statusLine = response.getStatusLine();
+						if (statusLine.getStatusCode() >= 300) {
+							throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+						}
+
+						HttpEntity entity = response.getEntity();
+						return entity == null ? null : EntityUtils.toString(entity, "UTF-8");
+					}
+				};
 				
-				ResponseHandler<String> responseHandler = new BasicResponseHandler();
 				try {
 					String responseBody = client.execute(post, responseHandler);
 					Log.v(TAG, "Response: "+responseBody);
