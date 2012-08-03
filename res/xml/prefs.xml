@@ -32,6 +32,7 @@
             	robobunny:unitsLeft=""
                 robobunny:unitsRight="%"
             />
+        <SwitchPreference android:key="@string/settings_debug" android:defaultValue="false" android:title="@string/settings_label_debug" android:summary="@string/settings_label_debug_long"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_label_about" >
         <Preference

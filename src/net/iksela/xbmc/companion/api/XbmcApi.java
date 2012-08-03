@@ -55,6 +55,10 @@ public class XbmcApi {
 		this._connection = connection;
 	}
 	
+	public XbmcConnection getConnection() {
+		return this._connection;
+	}
+	
 	public String getVideoType() {
 		return _videoType;
 	}

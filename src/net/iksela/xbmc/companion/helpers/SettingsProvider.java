@@ -19,20 +19,25 @@ public class SettingsProvider {
 		return this._context.getString(res);
 	}
 	
+	private String getString(int res, String defaultString) {
+		String preference = this._prefs.getString(getPref(res), defaultString);
+		return (preference == null) ? null : preference.trim();
+	}
+	
 	public String getIP() {
-		return this._prefs.getString(getPref(R.string.settings_ip), null);
+		return getString(R.string.settings_ip, null);
 	}
 	
 	public String getPort() {
-		return this._prefs.getString(getPref(R.string.settings_port), "80");
+		return getString(R.string.settings_port, "80");
 	}
 	
 	public String getUserName() {
-		return this._prefs.getString(getPref(R.string.settings_username), null);
+		return getString(R.string.settings_username, null);
 	}
 	
 	public String getPassword() {
-		return this._prefs.getString(getPref(R.string.settings_password), null);
+		return getString(R.string.settings_password, null);
 	}
 
 	public boolean getAutoPause() {
@@ -41,5 +46,9 @@ public class SettingsProvider {
 	
 	public int getDarkness() {
 		return this._prefs.getInt(getPref(R.string.settings_darkness), 25);
+	}
+	
+	public boolean getDebug() {
+		return this._prefs.getBoolean(getPref(R.string.settings_debug), false);
 	}
 }

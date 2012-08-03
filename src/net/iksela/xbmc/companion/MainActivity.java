@@ -174,6 +174,15 @@ public class MainActivity extends FragmentActivity {
 					builder.create().show();
 					updateLoadingMessage(R.string.error_unreachable);
 					((ProgressBar)findViewById(R.id.progressBar1)).setVisibility(View.INVISIBLE);
+					
+					// Display real error if debug
+					SettingsProvider settings = new SettingsProvider(MainActivity.this);
+					if (settings.getDebug()) {
+						TextView loading = (TextView)findViewById(R.id.textViewLoading);
+						loading.setText(xbmc.getConnection().getLastError());
+						loading.setTextIsSelectable(true);
+					}
+					
 					break;
 				case NO_VIDEOPLAYER:
 					updateLoadingMessage(R.string.error_novideoplayer);

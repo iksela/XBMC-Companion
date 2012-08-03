@@ -120,9 +120,13 @@ public class JsonRpc {
 					this._response = r;
 					return r;
 				} catch (ClientProtocolException e) {
-					Log.e(TAG, "ClientProtocolException: "+e.getMessage());
+					String error = "ClientProtocolException: "+e.getMessage();
+					Log.e(TAG, error);
+					connection.setLastError(error);
 				} catch (IOException e) {
-					Log.e(TAG, "IOException: "+e.getMessage());
+					String error = "IOException: "+e.getMessage();
+					Log.e(TAG, error);
+					connection.setLastError(error);
 				}
 			}
 			return null;

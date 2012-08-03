@@ -32,6 +32,8 @@ public class XbmcConnection {
 	private DefaultHttpClient _client;
 
 	private SettingsProvider _settings;
+	
+	private String _lastError;
 
 	/**
 	 * Creates a connection object.
@@ -71,7 +73,10 @@ public class XbmcConnection {
 			Log.v(TAG, "POST URL: " + url);
 			return httppost;
 		}
-		return null;
+		else {
+			this._lastError = "No IP provided, please review your settings.";
+			return null;
+		}
 	}
 	
 	/**
@@ -92,5 +97,13 @@ public class XbmcConnection {
 			Log.e(TAG, e.getMessage());
 		}
 		return img;
+	}
+	
+	public String getLastError() {
+		return this._lastError;
+	}
+	
+	public void setLastError(String error) {
+		this._lastError = error;
 	}
 }
