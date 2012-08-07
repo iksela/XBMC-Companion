@@ -12,6 +12,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,7 +84,7 @@ public class JsonRpc {
 			try {
 				String payload = _json.toString();
 				Log.v(TAG, payload);
-				return new StringEntity(payload);
+				return new StringEntity(payload, HTTP.UTF_8);
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, e.getMessage());
 			}
@@ -109,7 +110,7 @@ public class JsonRpc {
 						}
 
 						HttpEntity entity = response.getEntity();
-						return entity == null ? null : EntityUtils.toString(entity, "UTF-8");
+						return entity == null ? null : EntityUtils.toString(entity, HTTP.UTF_8);
 					}
 				};
 				

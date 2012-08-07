@@ -69,6 +69,7 @@ public class XbmcConnection {
 		if (ip != null) {
 			String url = "http://" + ip + ":" + _settings.getPort() + "/" + URL_JSON;
 			HttpPost httppost = new HttpPost(url);
+			httppost.setHeader("Content-Type", "application/json");
 			
 			Log.v(TAG, "POST URL: " + url);
 			return httppost;
