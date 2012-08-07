@@ -34,7 +34,10 @@ public class CastFragment extends AbstractFragment {
 					popup.show(actor.getName(), SearchPopupHelper.SEARCH_TYPE_ACTOR, view);
 				}
 			});
-			((RelativeLayout) view.findViewById(R.id.page3)).setBackgroundDrawable(activity.backgrounds[2]);
+			// if background exists
+			if (activity.backgrounds != null) {
+				((RelativeLayout) view.findViewById(R.id.page3)).setBackgroundDrawable(activity.backgrounds[2]);
+			}
 		}
 	}
 }

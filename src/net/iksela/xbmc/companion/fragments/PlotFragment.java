@@ -20,7 +20,10 @@ public class PlotFragment extends AbstractFragment {
 
 		if (activity.video != null) {
 			((TextView) view.findViewById(R.id.textViewPlot)).setText(activity.video.getPlot());
-			((RelativeLayout) view.findViewById(R.id.page2)).setBackgroundDrawable(activity.backgrounds[1]);
+			// if background exists
+			if (activity.backgrounds != null) {
+				((RelativeLayout) view.findViewById(R.id.page2)).setBackgroundDrawable(activity.backgrounds[1]);
+			}
 		}
 	}
 

@@ -77,7 +77,10 @@ public class NowPlayingFragment extends AbstractFragment {
 					}
 				});
 			}
-			((RelativeLayout) view.findViewById(R.id.page1)).setBackgroundDrawable(activity.backgrounds[0]);
+			// if background exists
+			if (activity.backgrounds != null) {
+				((RelativeLayout) view.findViewById(R.id.page1)).setBackgroundDrawable(activity.backgrounds[0]);
+			}
 		}
 	}
 }

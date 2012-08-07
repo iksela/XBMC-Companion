@@ -112,13 +112,16 @@ public class MainActivity extends FragmentActivity {
 					// and backgrounds
 					updateLoadingMessage(R.string.loading_data_format);
 					View root = ((ViewGroup)findViewById(android.R.id.content)).getChildAt(0);
-					MainActivity.this.backgrounds = UIHelper.getPieces(
-							mSwipePagerAdapter.fragments.size(),
-							MainActivity.this.video.getImage(),
-							root.getHeight(), root.getWidth(),
-							settings.getDarkness(),
-							getResources()
-					);
+					// if background exists...
+					if (MainActivity.this.video.getImage() != null) {
+						MainActivity.this.backgrounds = UIHelper.getPieces(
+								mSwipePagerAdapter.fragments.size(),
+								MainActivity.this.video.getImage(),
+								root.getHeight(), root.getWidth(),
+								settings.getDarkness(),
+								getResources()
+						);
+					}
 					// Update UI
 					MainActivity.this.runOnUiThread(new Runnable() {
 						@Override
